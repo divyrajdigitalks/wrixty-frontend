@@ -42,21 +42,21 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="dark min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-4 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-zinc-50 flex flex-col items-center justify-center p-4 relative overflow-hidden font-sans">
       {/* Background gradients */}
       <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none"></div>
       <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 rounded-full bg-teal-500/10 blur-3xl pointer-events-none"></div>
 
       <div className="w-full max-w-md relative z-10">
-        <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-md shadow-2xl text-center space-y-6">
+        <div className="bg-white border border-zinc-200 p-8 rounded-md shadow-lg text-center space-y-6">
           <div className="space-y-2">
-            <div className="w-12 h-12 mx-auto rounded-md bg-indigo-600 flex items-center justify-center font-black text-white text-lg shadow-lg tracking-wider">
+            <div className="w-12 h-12 mx-auto rounded-md bg-indigo-600 flex items-center justify-center font-black text-white text-lg shadow-md tracking-wider">
               WA
             </div>
-            <h1 className="text-xl font-black tracking-widest text-zinc-100 uppercase">
+            <h1 className="text-xl font-black tracking-widest text-zinc-800 uppercase">
               Wrixty Ayurveda
             </h1>
-            <p className="text-xs text-zinc-400 font-semibold tracking-wider uppercase">
+            <p className="text-xs text-zinc-500 font-semibold tracking-wider uppercase">
               Sign In to Your Account
             </p>
           </div>
@@ -75,7 +75,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="bg-zinc-950 border-zinc-800 text-zinc-100 placeholder:text-zinc-700 focus:border-indigo-500"
+              className="bg-white border-zinc-200 text-zinc-900 placeholder:text-zinc-400 focus:border-indigo-500"
             />
 
             <Input
@@ -85,7 +85,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="bg-zinc-950 border-zinc-800 text-zinc-100 placeholder:text-zinc-700 focus:border-indigo-500"
+              className="bg-white border-zinc-200 text-zinc-900 placeholder:text-zinc-400 focus:border-indigo-500"
             />
 
             <Button
@@ -99,10 +99,10 @@ export default function LoginPage() {
           </form>
 
           {/* Quick Demo Autofill */}
-          <div className="pt-4 border-t border-zinc-800/80">
+          <div className="pt-4 border-t border-zinc-200">
             <button
               onClick={autofillAdmin}
-              className="text-[11px] text-zinc-500 hover:text-indigo-400 font-bold tracking-wider uppercase transition-colors"
+              className="text-[11px] text-zinc-500 hover:text-indigo-600 font-bold tracking-wider uppercase transition-colors"
             >
               ⚡ Click to Auto-fill Demo Credentials
             </button>

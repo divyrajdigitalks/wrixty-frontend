@@ -2,16 +2,16 @@
 
 import React, { useState } from "react";
 import { Table, Column } from "../../components/common/Table";
-import { Delete, Add, Edit } from "@mui/icons-material";
+import { Delete, Edit } from "@mui/icons-material";
 import { Modal } from "../../components/common/Modal";
 import { Input } from "../../components/common/Input";
+import { Button } from "../../components/common/Button";
 
 export default function ReturnOrderTypePage() {
   const [types, setTypes] = useState([
-    { id: "1", name: "Wrong Product Delivered" },
-    { id: "2", name: "Customer Refused to Accept" },
-    { id: "3", name: "Courier Loss / Damaged" },
-    { id: "4", name: "Incorrect Delivery Address" }
+    { id: "1", name: "RTO" },
+    { id: "2", name: "Damaged Item" },
+    { id: "3", name: "Customer Return" }
   ]);
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -52,18 +52,20 @@ export default function ReturnOrderTypePage() {
       header: "Action",
       sortable: false,
       render: (_, row) => (
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={() => openEdit(row)}
-            className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-400 hover:text-indigo-500 rounded transition-all"
+            className="p-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded transition-all shadow-sm"
+            title="Edit"
           >
-            <Edit className="w-4 h-4" />
+            <Edit className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => handleDelete(row.id)}
-            className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-400 hover:text-red-500 rounded transition-all"
+            className="p-1.5 bg-rose-500 hover:bg-rose-400 text-white rounded transition-all shadow-sm"
+            title="Delete"
           >
-            <Delete className="w-4 h-4" />
+            <Delete className="w-3.5 h-3.5" />
           </button>
         </div>
       )
@@ -72,52 +74,74 @@ export default function ReturnOrderTypePage() {
 
   return (
     <div className="space-y-6">
-      {/* Header Panel */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h2 className="text-xl font-black uppercase tracking-wider text-zinc-900 dark:text-zinc-50">
-            Return Categories (Types)
+      <div className="bg-white dark:bg-zinc-950 p-6 border border-zinc-200 dark:border-zinc-900 rounded-md shadow-sm space-y-6">
+        
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-900 pb-4">
+          <h2 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">
+            Retrun Order Type List
           </h2>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 font-semibold uppercase tracking-wider">
-            Configure RTO classifications and categorization reason codes
-          </p>
+          <Button
+            onClick={() => {
+              setName("");
+              setModalOpen(true);
+            }}
+            variant="primary"
+          >
+            Add Retrun Order Type
+          </Button>
         </div>
-        <button
-          onClick={() => {
-            setName("");
-            setModalOpen(true);
-          }}
-          className="flex items-center gap-1 py-1.5 px-3.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold uppercase tracking-wider rounded-md shadow-sm transition-all"
-        >
-          <Add className="w-4 h-4" /> Add Type
-        </button>
+
+        {/* Table Controls */}
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-100 dark:border-zinc-900 pb-4">
+          <div className="flex items-center gap-1.5">
+            <Button variant="primary" size="sm" className="px-3 text-xs">Copy</Button>
+            <Button variant="primary" size="sm" className="px-3 text-xs">Excel</Button>
+            <Button variant="primary" size="sm" className="px-3 text-xs">CSV</Button>
+            <Button variant="primary" size="sm" className="px-3 text-xs">PDF</Button>
+          </div>
+          <div className="text-xs text-zinc-500 flex items-center gap-1.5 font-medium">
+            Search:
+            <input
+              type="text"
+              placeholder=""
+              className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded py-1.5 px-2 text-xs focus:ring-1 focus:ring-indigo-500 outline-none"
+            />
+          </div>
+        </div>
+
+        <Table data={types} columns={columns} searchable={false} />
       </div>
 
-      <Table data={types} columns={columns} />
-
       {/* Add Type Modal */}
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Add Return Classification">
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Add Retrun Order Type">
         <form onSubmit={handleCreate} className="space-y-4">
-          <Input label="Classification Name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="e.g. Package Tampered" />
-          <button
-            type="submit"
-            className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold uppercase tracking-wider text-xs rounded-md shadow transition-all"
-          >
-            Register Type
-          </button>
+          <Input label="Name" value={name} onChange={(e) => setName(e.target.value)} required />
+          <div className="flex justify-end pt-2">
+            <Button
+              type="submit"
+              variant="primary"
+              className="px-8"
+            >
+              Save
+            </Button>
+          </div>
         </form>
       </Modal>
 
       {/* Edit Type Modal */}
-      <Modal isOpen={editOpen} onClose={() => setEditOpen(false)} title="Edit Return Classification">
+      <Modal isOpen={editOpen} onClose={() => setEditOpen(false)} title="Edit Retrun Order Type">
         <form onSubmit={handleEdit} className="space-y-4">
-          <Input label="Classification Name" value={name} onChange={(e) => setName(e.target.value)} required />
-          <button
-            type="submit"
-            className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold uppercase tracking-wider text-xs rounded-md shadow transition-all"
-          >
-            Save Changes
-          </button>
+          <Input label="Name" value={name} onChange={(e) => setName(e.target.value)} required />
+          <div className="flex justify-end pt-2">
+            <Button
+              type="submit"
+              variant="primary"
+              className="px-8"
+            >
+              Save
+            </Button>
+          </div>
         </form>
       </Modal>
     </div>

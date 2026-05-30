@@ -129,9 +129,9 @@ export const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ childre
         key={path}
         href={path}
         onClick={() => setSidebarOpen(false)}
-        className={`flex items-center gap-3.5 px-4 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-wider transition-all duration-205 ${
+        className={`flex items-center gap-3.5 px-4 py-2.5 rounded-md text-[13px] font-medium capitalize tracking-wide transition-all duration-205 ${
           active
-            ? "bg-indigo-600 text-white shadow-sm"
+            ? "bg-indigo-600 text-white shadow-sm font-semibold"
             : "text-zinc-650 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100"
         }`}
       >
@@ -193,7 +193,7 @@ export const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ childre
               <div className="space-y-1 text-left">
                 <button
                   onClick={() => setTeamOpen(!teamOpen)}
-                  className="w-full flex items-center justify-between px-4 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-wider text-zinc-650 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all duration-200"
+                  className="w-full flex items-center justify-between px-4 py-2.5 rounded-md text-[13px] font-medium capitalize tracking-wide text-zinc-650 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all duration-200"
                 >
                   <div className="flex items-center gap-3.5">
                     <Groups className="w-4.5 h-4.5" />
@@ -214,7 +214,7 @@ export const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ childre
               <div className="space-y-1 text-left">
                 <button
                   onClick={() => setMasterOpen(!masterOpen)}
-                  className="w-full flex items-center justify-between px-4 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-wider text-zinc-650 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all duration-200"
+                  className="w-full flex items-center justify-between px-4 py-2.5 rounded-md text-[13px] font-medium capitalize tracking-wide text-zinc-650 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all duration-200"
                 >
                   <div className="flex items-center gap-3.5">
                     <Security className="w-4.5 h-4.5" />
@@ -272,7 +272,7 @@ export const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ childre
                   <div className="space-y-1 text-left">
                     <button
                       onClick={() => setTeamOpen(!teamOpen)}
-                      className="w-full flex items-center justify-between px-4 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-wider text-zinc-650 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all duration-200"
+                      className="w-full flex items-center justify-between px-4 py-2.5 rounded-md text-[13px] font-medium capitalize tracking-wide text-zinc-650 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all duration-200"
                     >
                       <div className="flex items-center gap-3.5">
                         <Groups className="w-4.5 h-4.5" />
@@ -293,7 +293,7 @@ export const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ childre
                   <div className="space-y-1 text-left">
                     <button
                       onClick={() => setMasterOpen(!masterOpen)}
-                      className="w-full flex items-center justify-between px-4 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-wider text-zinc-650 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all duration-200"
+                      className="w-full flex items-center justify-between px-4 py-2.5 rounded-md text-[13px] font-medium capitalize tracking-wide text-zinc-650 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all duration-200"
                     >
                       <div className="flex items-center gap-3.5">
                         <Security className="w-4.5 h-4.5" />
