@@ -118,6 +118,7 @@ export function Table<T extends Record<string, any>>({
   };
 
   const handleSearchChange = (value: string) => {
+    setInternalSearch(value);
     if (serverSide) {
       if (searchTimeout.current) clearTimeout(searchTimeout.current);
       searchTimeout.current = setTimeout(() => {
@@ -125,7 +126,6 @@ export function Table<T extends Record<string, any>>({
         onPageChange?.(1, activeLimit);
       }, 400);
     } else {
-      setInternalSearch(value);
       setInternalPage(1);
     }
   };
@@ -171,11 +171,8 @@ export function Table<T extends Record<string, any>>({
             <input
               type="text"
               placeholder={searchPlaceholder}
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setCurrentPage(1);
-              }}
+              value={internalSearch}
+              onChange={(e) => handleSearchChange(e.target.value)}
               className="w-full px-4 py-2 text-xs bg-background border border-border-ui text-text-primary rounded-xl outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal/20"
             />
           </div>
@@ -280,11 +277,8 @@ export function Table<T extends Record<string, any>>({
         <div className="flex items-center gap-2 text-xs text-text-secondary">
           <span>Rows per page:</span>
           <select
-            value={rowsPerPage}
-            onChange={(e) => {
-              setRowsPerPage(Number(e.target.value));
-              setCurrentPage(1);
-            }}
+            value={activeLimit}
+            onChange={(e) => handleLimitChange(Number(e.target.value))}
             className="bg-transparent border-none focus:ring-0 cursor-pointer font-semibold text-text-primary"
           >
             {[5, 10, 20, 50].map((v) => (
@@ -295,19 +289,19 @@ export function Table<T extends Record<string, any>>({
 
         <div className="flex items-center gap-4">
           <span className="text-xs text-text-secondary">
-            Page <span className="font-semibold text-text-primary">{currentPage}</span> of {totalPages || 1}
+            Page <span className="font-semibold text-text-primary">{activePage}</span> of {totalPages || 1}
           </span>
           <div className="flex items-center gap-1">
             <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
+              onClick={() => handlePageChange(activePage - 1)}
+              disabled={activePage === 1}
               className="p-1.5 rounded-lg hover:bg-background text-text-secondary disabled:opacity-30 transition-colors"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages || totalPages === 0}
+              onClick={() => handlePageChange(activePage + 1)}
+              disabled={activePage === totalPages || totalPages === 0}
               className="p-1.5 rounded-lg hover:bg-background text-text-secondary disabled:opacity-30 transition-colors"
             >
               <ChevronRight className="w-5 h-5" />
