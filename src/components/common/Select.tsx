@@ -154,7 +154,7 @@ export const Select: React.FC<SelectProps> = ({
             </div>
 
             {/* Options List */}
-            <div className="max-h-60 overflow-y-auto py-1">
+            <div className="max-h-48 overflow-y-auto py-1 scrollbar-thin">
               {filteredOptions.length > 0 ? (
                 filteredOptions.map((opt) => (
                   <button

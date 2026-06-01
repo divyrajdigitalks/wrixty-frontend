@@ -2,7 +2,30 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMockDb, Lead } from "../../context/MockDbContext";
+import { fetchUsers } from "../../services/userService";
+import { fetchProducts } from "../../services/productService";
+import { fetchStatuses } from "../../services/statusService";
+
+export interface Lead {
+  id: string;
+  name: string;
+  phone_number: string;
+  product: string;
+  amount: number;
+  quantity: number;
+  subtotal: number;
+  assgin: string;
+  date: string;
+  time?: string;
+  status: string;
+  status_two?: string;
+  reason_call?: string;
+  note: string;
+  isDeleted?: boolean;
+  deleteDate?: string;
+  reminderDate?: string;
+}
+
 import { useToast } from "../../context/ToastContext";
 import { Table, Column } from "../../components/common/Table";
 import { Modal } from "../../components/common/Modal";
@@ -20,7 +43,74 @@ interface SelectedProductRow {
 }
 
 export default function LeadListPage() {
-  const { leads, products, users, statuses, couriers, addLead, updateLead, deleteLead, convertToOrder } = useMockDb();
+  const [leads, setLeads] = useState<Lead[]>([
+    { id: "1", name: "Rajesh Kumar", phone_number: "9988776655", product: "Wrixty Ashwagandha Gold", amount: 1200, quantity: 2, subtotal: 2400, assgin: "Aman Sharma", date: "2026-05-29", time: "10:30", status: "New", note: "Interested in stress relief products." },
+    { id: "2", name: "Suresh Gupta", phone_number: "8877665544", product: "Wrixty Triphala Digest", amount: 650, quantity: 1, subtotal: 650, assgin: "Priya Patel", date: "2026-05-29", time: "11:15", status: "Call Back", note: "Wants to consult with doctor first." },
+    { id: "3", name: "Neha Sharma", phone_number: "7766554433", product: "Wrixty Shatavari Hormonal Balance", amount: 1100, quantity: 1, subtotal: 1100, assgin: "Aman Sharma", date: "2026-05-30", time: "09:00", status: "In-Progress", note: "Inquiring about hormonal balance pack." },
+    { id: "4", name: "Ramesh Patel", phone_number: "9012345678", product: "Wrixty Brahmi Mind Focus", amount: 890, quantity: 3, subtotal: 2670, assgin: "Vikram Singh", date: "2026-05-28", time: "16:20", status: "Pending", note: "Asked for discount." }
+  ]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
+  const [statuses, setStatuses] = useState<any[]>([]);
+  const [couriers, setCouriers] = useState<any[]>([
+    { id: "1", name: "Delhivery" },
+    { id: "2", name: "BlueDart" },
+    { id: "3", name: "XpressBees" },
+    { id: "4", name: "DHL Express" }
+  ]);
+
+  React.useEffect(() => {
+    const loadMasterData = async () => {
+      try {
+        const [usersRes, prodsRes, statusRes] = await Promise.all([
+          fetchUsers({ page: 1, limit: 100 }),
+          fetchProducts({ page: 1, limit: 100 }),
+          fetchStatuses({ page: 1, limit: 100 })
+        ]);
+        setUsers(usersRes.data);
+        setProducts(prodsRes.data);
+        setStatuses(statusRes.data);
+      } catch (err) {
+        console.error("Error loading master data", err);
+      }
+    };
+    loadMasterData();
+  }, []);
+
+  const addLead = (l: Omit<Lead, "id" | "date" | "subtotal">) => {
+    const newLeads = [
+      ...leads,
+      {
+        ...l,
+        id: Date.now().toString(),
+        date: new Date().toISOString().split("T")[0],
+        time: new Date().toTimeString().split(" ")[0].substring(0, 5),
+        subtotal: l.amount * l.quantity
+      }
+    ];
+    setLeads(newLeads);
+  };
+
+  const updateLead = (id: string, updated: Partial<Lead>) => {
+    setLeads(prev => prev.map(l => {
+      if (l.id === id) {
+        const merged = { ...l, ...updated };
+        if (updated.amount !== undefined || updated.quantity !== undefined) {
+          merged.subtotal = merged.amount * merged.quantity;
+        }
+        return merged;
+      }
+      return l;
+    }));
+  };
+
+  const deleteLead = (id: string) => {
+    setLeads(prev => prev.map(l => l.id === id ? { ...l, isDeleted: true, deleteDate: new Date().toISOString().split("T")[0] } : l));
+  };
+
+  const convertToOrder = (leadId: string, details: { paymentType: "COD" | "Prepaid"; courier: string; transactionId: string }) => {
+    updateLead(leadId, { status: "Delivered" });
+  };
   const toast = useToast();
 
   const router = useRouter();

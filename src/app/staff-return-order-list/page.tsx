@@ -1,11 +1,9 @@
 "use client";
 
 import React from "react";
-import { useMockDb } from "../../context/MockDbContext";
 import { Table, Column } from "../../components/common/Table";
 
 export default function StaffReturnOrderListPage() {
-  const { users, returnOrders } = useMockDb();
 
   const staffStats = React.useMemo(() => {
     // Generate mock list according to screenshot

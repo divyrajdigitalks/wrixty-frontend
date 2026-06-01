@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { useMockDb, ReturnOrder } from "../../context/MockDbContext";
 import { Table, Column } from "../../components/common/Table";
 import { Delete, Visibility, Close } from "@mui/icons-material";
 import { useToast } from "../../context/ToastContext";
@@ -9,10 +8,50 @@ import { Button } from "../../components/common/Button";
 import { Select } from "../../components/common/Select";
 import { Modal } from "../../components/common/Modal";
 import { Input } from "../../components/common/Input";
+import { fetchUsers } from "../../services/userService";
+import { fetchProducts } from "../../services/productService";
+
+export interface ReturnOrder {
+  id: string;
+  customerName: string;
+  phone_number: string;
+  assginTo: string;
+  orderDate: string;
+  returnDate: string;
+  product: string;
+  amount: number;
+  quantity: number;
+  subtotal: number;
+  type: string;
+}
 
 export default function ReturnOrderPage() {
-  const { returnOrders, users, products, deleteReturnOrder } = useMockDb();
+  const [returnOrders, setReturnOrders] = useState<ReturnOrder[]>([
+    { id: "1", customerName: "Anil Saxena", phone_number: "9123456780", assginTo: "Aman Sharma", orderDate: "2026-05-20", returnDate: "2026-05-25", product: "Wrixty Neem Blood Purify", amount: 450, quantity: 2, subtotal: 900, type: "Wrong Product Delivered" }
+  ]);
+  const [users, setUsers] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
   const toast = useToast();
+
+  React.useEffect(() => {
+    const loadMasterData = async () => {
+      try {
+        const [usersRes, prodsRes] = await Promise.all([
+          fetchUsers({ page: 1, limit: 100 }),
+          fetchProducts({ page: 1, limit: 100 })
+        ]);
+        setUsers(usersRes.data);
+        setProducts(prodsRes.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    loadMasterData();
+  }, []);
+
+  const deleteReturnOrder = (id: string) => {
+    setReturnOrders(prev => prev.filter(r => r.id !== id));
+  };
 
   const [filterAssign, setFilterAssign] = useState("all");
   const [filterOrder, setFilterOrder] = useState("all");

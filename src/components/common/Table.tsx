@@ -186,8 +186,7 @@ export function Table<T extends Record<string, any>>({
       <div className="w-full overflow-x-auto bg-white border border-border-ui rounded-lg shadow-soft">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-background/80 border-b border-border-ui relative">
-              <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-primary-teal/10 to-transparent"></div>
+            <tr className="bg-background/80 border-b border-border-ui">
               {selectable && (
                 <th className="p-4 w-12 text-center">
                   <input

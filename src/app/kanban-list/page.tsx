@@ -1,10 +1,32 @@
 "use client";
 
 import React, { useState } from "react";
-import { useMockDb } from "../../context/MockDbContext";
+import { fetchStatuses } from "../../services/statusService";
 
 export default function KanbanListPage() {
-  const { leads, statuses, updateLead } = useMockDb();
+  const [statuses, setStatuses] = useState<any[]>([]);
+  const [leads, setLeads] = useState<any[]>([
+    { id: "1", name: "Rajesh Kumar", phone_number: "9988776655", product: "Wrixty Ashwagandha Gold", amount: 1200, quantity: 2, subtotal: 2400, assgin: "Aman Sharma", date: "2026-05-29", time: "10:30", status: "New", note: "Interested in stress relief products." },
+    { id: "2", name: "Suresh Gupta", phone_number: "8877665544", product: "Wrixty Triphala Digest", amount: 650, quantity: 1, subtotal: 650, assgin: "Priya Patel", date: "2026-05-29", time: "11:15", status: "Call Back", note: "Wants to consult with doctor first." },
+    { id: "3", name: "Neha Sharma", phone_number: "7766554433", product: "Wrixty Shatavari Hormonal Balance", amount: 1100, quantity: 1, subtotal: 1100, assgin: "Aman Sharma", date: "2026-05-30", time: "09:00", status: "In-Progress", note: "Inquiring about hormonal balance pack." },
+    { id: "4", name: "Ramesh Patel", phone_number: "9012345678", product: "Wrixty Brahmi Mind Focus", amount: 890, quantity: 3, subtotal: 2670, assgin: "Vikram Singh", date: "2026-05-28", time: "16:20", status: "Pending", note: "Asked for discount." }
+  ]);
+
+  React.useEffect(() => {
+    const loadStatuses = async () => {
+      try {
+        const res = await fetchStatuses({ page: 1, limit: 100 });
+        setStatuses(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    loadStatuses();
+  }, []);
+
+  const updateLead = (id: string, updated: Partial<any>) => {
+    setLeads(prev => prev.map(l => l.id === id ? { ...l, ...updated } : l));
+  };
 
   const activeLeads = React.useMemo(() => leads.filter(l => !l.isDeleted), [leads]);
 

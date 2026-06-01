@@ -1,13 +1,27 @@
 "use client";
 
 import React, { useState } from "react";
-import { useMockDb } from "../../context/MockDbContext";
+import { fetchUsers } from "../../services/userService";
 import { Table, Column } from "../../components/common/Table";
 import { Select } from "../../components/common/Select";
 import { Button } from "../../components/common/Button";
 
 export default function ActivityLogPage() {
-  const { leads, orders, users } = useMockDb();
+  const [users, setUsers] = useState<any[]>([]);
+  const [leads, setLeads] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
+
+  React.useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const res = await fetchUsers({ page: 1, limit: 100 });
+        setUsers(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    loadUsers();
+  }, []);
 
   const [filterUser, setFilterUser] = useState("all");
 

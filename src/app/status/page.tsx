@@ -211,8 +211,6 @@ export default function StatusPage() {
           rowsPerPage={limit}
           onPageChange={(p, l) => { setPage(p); setLimit(l); }}
           onSearchChange={(s) => { setSearch(s); setPage(1); }}
-          exportData={statuses}
-          exportFilename="statuses"
         />
       </div>
 

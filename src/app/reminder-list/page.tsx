@@ -1,15 +1,33 @@
 "use client";
 
 import React, { useState } from "react";
-import { useMockDb, Reminder } from "../../context/MockDbContext";
 import { Table, Column } from "../../components/common/Table";
 import { FiTrash2 } from "react-icons/fi";
 import { useToast } from "../../context/ToastContext";
 import { Button } from "../../components/common/Button";
 
+export interface Reminder {
+  id: string;
+  title: string;
+  leadId: string;
+  name: string;
+  phone_number: string;
+  reminderDate: string;
+  product: string;
+  amount: number;
+  quantity: number;
+  subtotal: number;
+}
+
 export default function ReminderListPage() {
-  const { reminders, deleteReminder } = useMockDb();
+  const [reminders, setReminders] = useState<Reminder[]>([
+    { id: "1", title: "Follow-up for Ashwagandha pack", leadId: "1", name: "Rajesh Kumar", phone_number: "9988776655", reminderDate: "2026-05-31", product: "Wrixty Ashwagandha Gold", amount: 1200, quantity: 2, subtotal: 2400 }
+  ]);
   const toast = useToast();
+
+  const deleteReminder = (id: string) => {
+    setReminders(prev => prev.filter(r => r.id !== id));
+  };
 
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
 

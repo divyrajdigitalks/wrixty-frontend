@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "../../components/common/Input";
 import { Button } from "../../components/common/Button";
+import { loginUser } from "../../services/authService";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -19,21 +20,25 @@ export default function LoginPage() {
     }
   }, [router]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    // Simulate login verification
-    setTimeout(() => {
-      if (email === "Superadmin@gmail.com" && password === "12345678") {
-        localStorage.setItem("wrixty_authenticated", "true");
-        router.push("/dashboard");
-      } else {
-        setError("Invalid email address or password. Please try again.");
-        setLoading(false);
-      }
-    }, 800);
+    try {
+      const user = await loginUser({ email, password });
+      localStorage.setItem("wrixty_authenticated", "true");
+      localStorage.setItem("wrixty_token", user.token); // Save JWT token!
+      localStorage.setItem("wrixty_authenticated_user", JSON.stringify({
+        name: user.name,
+        email: user.email,
+        roles: user.roles
+      }));
+      router.push("/dashboard");
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Invalid email address or password. Please try again.");
+      setLoading(false);
+    }
   };
 
   const autofillAdmin = () => {

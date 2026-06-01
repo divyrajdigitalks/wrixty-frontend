@@ -2,12 +2,13 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMockDb } from "../../context/MockDbContext";
 import { useToast } from "../../context/ToastContext";
 import { Input } from "../../components/common/Input";
 import { Select } from "../../components/common/Select";
 import { Button } from "../../components/common/Button";
 import { Delete, ArrowBack } from "@mui/icons-material";
+import { fetchUsers } from "../../services/userService";
+import { fetchProducts } from "../../services/productService";
 
 interface SelectedProductRow {
   id: string;
@@ -18,8 +19,46 @@ interface SelectedProductRow {
 
 export default function AddLeadPage() {
   const router = useRouter();
-  const { leads, products, users, statuses, couriers, addLead, convertToOrder } = useMockDb();
+  const [products, setProducts] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
+  const [couriers, setCouriers] = useState<any[]>([
+    { id: "1", name: "Delhivery" },
+    { id: "2", name: "BlueDart" },
+    { id: "3", name: "XpressBees" },
+    { id: "4", name: "DHL Express" }
+  ]);
+  const [leads, setLeads] = useState<any[]>([]);
   const toast = useToast();
+
+  React.useEffect(() => {
+    const loadMasterData = async () => {
+      try {
+        const [usersRes, prodsRes] = await Promise.all([
+          fetchUsers({ page: 1, limit: 100 }),
+          fetchProducts({ page: 1, limit: 100 })
+        ]);
+        setUsers(usersRes.data);
+        setProducts(prodsRes.data);
+        if (usersRes.data.length > 0) {
+          setAssignee(usersRes.data[0].name);
+        }
+        if (prodsRes.data.length > 0) {
+          setCurrentSelectedProduct(prodsRes.data[0].name);
+        }
+      } catch (err) {
+        console.error("Error loading master data", err);
+      }
+    };
+    loadMasterData();
+  }, []);
+
+  const addLead = (l: any) => {
+    toast.success("Lead added locally!");
+  };
+
+  const convertToOrder = (leadId: string, details: any) => {
+    toast.success("Converted to order locally!");
+  };
 
   const [isAddingLead, setIsAddingLead] = useState(false);
 

@@ -1,12 +1,37 @@
 "use client";
 
 import React from "react";
-import { useMockDb, Lead } from "../../context/MockDbContext";
 import { Table, Column } from "../../components/common/Table";
 import { Restore } from "@mui/icons-material";
 
+export interface Lead {
+  id: string;
+  name: string;
+  phone_number: string;
+  product: string;
+  amount: number;
+  quantity: number;
+  subtotal: number;
+  assgin: string;
+  date: string;
+  time?: string;
+  status: string;
+  status_two?: string;
+  reason_call?: string;
+  note: string;
+  isDeleted?: boolean;
+  deleteDate?: string;
+  reminderDate?: string;
+}
+
 export default function RestoreDataPage() {
-  const { leads, restoreLead } = useMockDb();
+  const [leads, setLeads] = React.useState<Lead[]>([
+    { id: "1", name: "Rajesh Kumar", phone_number: "9988776655", product: "Wrixty Ashwagandha Gold", amount: 1200, quantity: 2, subtotal: 2400, assgin: "Aman Sharma", date: "2026-05-29", time: "10:30", status: "New", note: "Interested in stress relief products.", isDeleted: true, deleteDate: "2026-05-30" }
+  ]);
+
+  const restoreLead = (id: string) => {
+    setLeads(prev => prev.map(l => l.id === id ? { ...l, isDeleted: false } : l));
+  };
 
   const deletedLeads = React.useMemo(() => leads.filter(l => l.isDeleted), [leads]);
 

@@ -1,15 +1,32 @@
 "use client";
 
 import React, { useState } from "react";
-import { useMockDb, Task } from "../../context/MockDbContext";
 import { Table, Column } from "../../components/common/Table";
 import { FiTrash2 } from "react-icons/fi";
 import { useToast } from "../../context/ToastContext";
 import { Button } from "../../components/common/Button";
 
+export interface Task {
+  id: string;
+  date: string;
+  assginUser: string;
+  lead: string;
+  phone_number: string;
+  addedBy: string;
+  message: string;
+  status: "Pending" | "Completed";
+}
+
 export default function TaskListPage() {
-  const { tasks, deleteTask } = useMockDb();
+  const [tasks, setTasks] = useState<Task[]>([
+    { id: "1", date: "2026-05-30", assginUser: "Aman Sharma", lead: "Rajesh Kumar", phone_number: "9988776655", addedBy: "Super Admin", message: "Call regarding bulk order requirements", status: "Pending" },
+    { id: "2", date: "2026-05-29", assginUser: "Priya Patel", lead: "Suresh Gupta", phone_number: "8877665544", addedBy: "Super Admin", message: "Confirm delivery details", status: "Completed" }
+  ]);
   const toast = useToast();
+
+  const deleteTask = (id: string) => {
+    setTasks(prev => prev.filter(t => t.id !== id));
+  };
 
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
 

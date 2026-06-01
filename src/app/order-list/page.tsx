@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { useMockDb, Order } from "../../context/MockDbContext";
 import { useToast } from "../../context/ToastContext";
 import { Table, Column } from "../../components/common/Table";
 import { Select } from "../../components/common/Select";
@@ -10,6 +9,28 @@ import { Button } from "../../components/common/Button";
 import { Modal } from "../../components/common/Modal";
 import { Close } from "@mui/icons-material";
 import { FiEdit, FiTrash2, FiRefreshCcw } from "react-icons/fi";
+import { fetchProducts } from "../../services/productService";
+import { fetchUsers } from "../../services/userService";
+
+export interface Order {
+  id: string;
+  leadId: string;
+  name: string;
+  phone_number: string;
+  product: string;
+  amount: number;
+  quantity: number;
+  subtotal: number;
+  grandTotal: number;
+  date: string;
+  paymentType: "COD" | "Prepaid";
+  courier: string;
+  assginTo: string;
+  transactionId: string;
+  returnType?: string;
+  repartOrderTotal?: number;
+  status: string; // Converted, Dispatched, Delivered, Returned
+}
 
 interface SelectedProductRow {
   id: string;
@@ -19,7 +40,46 @@ interface SelectedProductRow {
 }
 
 export default function OrderListPage() {
-  const { orders, products, users, couriers, deleteOrder, updateOrder, addOrder } = useMockDb();
+  const [orders, setOrders] = useState<Order[]>([
+    { id: "1", leadId: "4", name: "Ramesh Patel", phone_number: "9012345678", product: "Wrixty Brahmi Mind Focus", amount: 890, quantity: 3, subtotal: 2670, grandTotal: 2670, date: "2026-05-28", paymentType: "COD", courier: "Delhivery", assginTo: "Vikram Singh", transactionId: "TXN90283019", status: "Dispatched" }
+  ]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
+  const [couriers, setCouriers] = useState<any[]>([
+    { id: "1", name: "Delhivery" },
+    { id: "2", name: "BlueDart" },
+    { id: "3", name: "XpressBees" },
+    { id: "4", name: "DHL Express" }
+  ]);
+
+  React.useEffect(() => {
+    const loadMasterData = async () => {
+      try {
+        const [usersRes, prodsRes] = await Promise.all([
+          fetchUsers({ page: 1, limit: 100 }),
+          fetchProducts({ page: 1, limit: 100 })
+        ]);
+        setUsers(usersRes.data);
+        setProducts(prodsRes.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    loadMasterData();
+  }, []);
+
+  const deleteOrder = (id: string) => {
+    setOrders(prev => prev.filter(o => o.id !== id));
+  };
+
+  const updateOrder = (id: string, updated: Partial<Order>) => {
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, ...updated } : o));
+  };
+
+  const addOrder = (o: Omit<Order, "id">) => {
+    setOrders(prev => [...prev, { ...o, id: Date.now().toString() }]);
+  };
+
   const toast = useToast();
 
   // Selected Leads for bulk options (if needed, but not in screenshot)
@@ -282,7 +342,6 @@ export default function OrderListPage() {
             { value: "", label: "Select Courier" },
             ...couriers.map(c => ({ value: c.name, label: c.name }))
           ]}
-          required
         />
       </div>
 

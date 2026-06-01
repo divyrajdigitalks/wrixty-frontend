@@ -1,50 +1,62 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Table, Column } from "../../components/common/Table";
 import { 
-  Shield, 
-  Settings, 
-  Group, 
   AdminPanelSettings, 
   Person, 
   SupervisorAccount,
-  Add,
-  Save,
   CheckCircle,
   RadioButtonUnchecked,
   Delete,
   Edit
 } from "@mui/icons-material";
+import {
+  fetchRoles,
+  createRole,
+  updateRole,
+  deleteRole,
+  exportRoles,
+  Role,
+} from "../../services/roleService";
+import { exportCopy, exportExcel, exportCSV, exportPDF } from "../../utils/exportUtils";
 import { Modal } from "../../components/common/Modal";
 import { Input } from "../../components/common/Input";
 import { Button } from "../../components/common/Button";
 
-interface Role {
-  id: string;
-  name: string;
-  permissions: Record<string, boolean>;
-}
-
 const MODULE_PERMISSIONS = [
+  { module: "Dashboard", perms: ["Dashboard-view"] },
   { module: "Users List", perms: ["User-add", "User-list", "User-edit", "User-delete"] },
   { module: "Team List", perms: ["Team-add", "Team-list", "Team-edit", "Team-delete"] },
   { module: "Roles List", perms: ["Roles-add", "Roles-list", "Roles-edit", "Roles-delete"] },
   { module: "Lead List", perms: ["Lead-add", "Lead-transfer", "Lead-list", "Lead-edit", "Lead-delete"] },
+  { module: "Restore Lead", perms: ["Restore-lead-list", "Restore-lead-action"] },
   { module: "Order List", perms: ["Order-edit", "Order-delete", "Repart-order"] },
   { module: "Activity-Log", perms: ["Activity-log"] },
   { module: "Lead-Try", perms: ["Lead-try"] },
   { module: "Reminder List", perms: ["Reminder-edit", "Reminder-list"] },
+  { module: "Kanban", perms: ["Kanban-view", "Kanban-update"] },
   { module: "Return Order List", perms: ["Return-order-list", "Return-order-add"] },
+  { module: "Return Order Report", perms: ["Return-order-report-view"] },
   { module: "Currier List", perms: ["Currier-add", "Currier-list", "Currier-edit", "Currier-delete"] },
+  { module: "Status Master", perms: ["Status-add", "Status-list", "Status-edit", "Status-delete"] },
+  { module: "Product Master", perms: ["Product-add", "Product-list", "Product-edit", "Product-delete"] },
+  { module: "Return Order Type Master", perms: ["Return-order-type-add", "Return-order-type-list", "Return-order-type-edit", "Return-order-type-delete"] },
+  { module: "Reason to Call Master", perms: ["Reason-to-call-add", "Reason-to-call-list", "Reason-to-call-edit", "Reason-to-call-delete"] },
 ];
 
 export default function RolesListPage() {
-  const [roles, setRoles] = useState<Role[]>([
-    { id: "1", name: "Admin", permissions: {} },
-    { id: "2", name: "Staff", permissions: {} },
-    { id: "3", name: "Main Maneger", permissions: {} },
-  ]);
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [exportLoading, setExportLoading] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
+
+  // Server-side pagination + search
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [search, setSearch] = useState("");
+  const [total, setTotal] = useState(0);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -52,36 +64,82 @@ export default function RolesListPage() {
 
   const [name, setName] = useState("");
   const [selectedPerms, setSelectedPerms] = useState<Record<string, boolean>>({});
+  const [formErrors, setFormErrors] = useState<{ name?: string }>({});
 
-  const handleCreate = (e: React.FormEvent) => {
+  const loadRoles = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetchRoles({ page, limit, search });
+      setRoles(res.data);
+      setTotal(res.total);
+    } catch {
+      setError("Failed to load roles. Make sure the backend is running.");
+    } finally {
+      setLoading(false);
+    }
+  }, [page, limit, search]);
+
+  useEffect(() => {
+    loadRoles();
+  }, [loadRoles]);
+
+  const validate = () => {
+    const errors: { name?: string } = {};
+    if (!name.trim()) errors.name = "Role name is required";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    setRoles([...roles, { id: Date.now().toString(), name, permissions: selectedPerms }]);
-    setModalOpen(false);
-    clear();
+    if (!validate()) return;
+    try {
+      await createRole({ name, permissions: selectedPerms });
+      setModalOpen(false);
+      clear();
+      loadRoles();
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Failed to create role.");
+    }
   };
 
   const openEdit = (role: Role) => {
     setActiveRole(role);
     setName(role.name);
     setSelectedPerms(role.permissions || {});
+    setFormErrors({});
     setEditOpen(true);
   };
 
-  const handleEdit = (e: React.FormEvent) => {
+  const handleEdit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
     if (!activeRole) return;
-    setRoles(roles.map(r => r.id === activeRole.id ? { ...r, name, permissions: selectedPerms } : r));
-    setEditOpen(false);
-    clear();
+    try {
+      await updateRole(activeRole._id, { name, permissions: selectedPerms });
+      setEditOpen(false);
+      clear();
+      loadRoles();
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Failed to update role.");
+    }
   };
 
-  const handleDelete = (id: string) => {
-    setRoles(roles.filter(r => r.id !== id));
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteRole(id);
+      loadRoles();
+    } catch {
+      setError("Failed to delete role.");
+    }
   };
 
   const clear = () => {
     setName("");
     setSelectedPerms({});
+    setActiveRole(null);
+    setFormErrors({});
   };
 
   const togglePerm = (perm: string) => {
@@ -91,15 +149,38 @@ export default function RolesListPage() {
     }));
   };
 
+  const exportFields = [
+    { key: 'name', header: 'Role Name' },
+  ];
+
+  const handleExport = async (type: 'copy' | 'excel' | 'csv' | 'pdf') => {
+    try {
+      setExportLoading(true);
+      const rows = await exportRoles(search);
+      if (type === 'copy') {
+        exportCopy(rows, exportFields);
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      }
+      else if (type === 'excel') exportExcel(rows, exportFields, 'roles');
+      else if (type === 'csv') exportCSV(rows, exportFields, 'roles');
+      else if (type === 'pdf') exportPDF(rows, exportFields, 'Roles List');
+    } catch {
+      setError('Export failed. Please try again.');
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
   const columns: Column<Role>[] = [
-    { key: "id", header: "No", render: (_, __, i) => i + 1, sortable: false },
+    { key: "_id", header: "No", render: (_, __, i) => (page - 1) * limit + i + 1, sortable: false },
     {
       key: "name",
       header: "Role Name",
       render: (val) => (
         <div className="flex items-center gap-2">
-          {val === "Admin" ? <AdminPanelSettings className="text-primary-teal w-4 h-4" /> : 
-           val === "Main Maneger" ? <SupervisorAccount className="text-primary-teal w-4 h-4" /> :
+          {val === "Superadmin" ? <AdminPanelSettings className="text-primary-teal w-4 h-4" /> : 
+           val === "Manager" ? <SupervisorAccount className="text-primary-teal w-4 h-4" /> :
            <Person className="text-primary-teal w-4 h-4" />}
           <span className="font-bold uppercase tracking-wide">{val}</span>
         </div>
@@ -113,13 +194,13 @@ export default function RolesListPage() {
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => openEdit(row)}
-            className="p-1.5 bg-primary-teal hover:bg-primary-teal text-white rounded-lg transition-all shadow-sm"
+            className="p-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-all shadow-sm"
             title="Edit Role"
           >
             <Edit className="w-3.5 h-3.5" />
           </button>
           <button
-            onClick={() => handleDelete(row.id)}
+            onClick={() => handleDelete(row._id)}
             className="p-1.5 bg-rose-500 hover:bg-rose-400 text-white rounded-lg transition-all shadow-sm"
             title="Delete Role"
           >
@@ -130,37 +211,83 @@ export default function RolesListPage() {
     }
   ];
 
+  const allPermsList = MODULE_PERMISSIONS.flatMap(m => m.perms);
+  const isAllSelected = allPermsList.length > 0 && allPermsList.every(p => !!selectedPerms[p]);
+
+  const toggleAllPermissions = () => {
+    if (isAllSelected) {
+      setSelectedPerms({});
+    } else {
+      const newPerms: Record<string, boolean> = {};
+      allPermsList.forEach(p => {
+        newPerms[p] = true;
+      });
+      setSelectedPerms(newPerms);
+    }
+  };
+
+  const isModuleAllSelected = (mod: typeof MODULE_PERMISSIONS[0]) => {
+    return mod.perms.every(p => !!selectedPerms[p]);
+  };
+
+  const toggleModulePermissions = (mod: typeof MODULE_PERMISSIONS[0]) => {
+    const isModSelected = isModuleAllSelected(mod);
+    setSelectedPerms(prev => {
+      const updated = { ...prev };
+      mod.perms.forEach(p => {
+        if (isModSelected) {
+          delete updated[p];
+        } else {
+          updated[p] = true;
+        }
+      });
+      return updated;
+    });
+  };
+
   const renderPermissionsTable = () => (
-    <div className="mt-6 border border-zinc-200  rounded-lg overflow-hidden bg-white ">
+    <div className="mt-6 border border-zinc-250 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-950">
       <table className="w-full text-left text-xs">
         <thead>
-          <tr className="border-b border-zinc-200  font-semibold text-zinc-600 ">
-            <th className="p-4 w-1/4">Module</th>
+          <tr className="border-b border-zinc-250 dark:border-zinc-800 font-semibold text-text-secondary bg-background/50">
+            <th className="p-4 w-1/4">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={isAllSelected}
+                  onChange={toggleAllPermissions}
+                  className="w-4 h-4 text-primary-teal border-zinc-300 rounded focus:ring-primary-teal cursor-pointer"
+                />
+                <span>Module</span>
+              </div>
+            </th>
             <th className="p-4 w-3/4">Permissions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-zinc-100 ">
+        <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
           {MODULE_PERMISSIONS.map((mod, i) => (
-            <tr key={i} className="hover:bg-zinc-50 ">
-              <td className="p-4 font-semibold text-zinc-800  align-top">
-                {mod.module}
+            <tr key={i} className="hover:bg-background/80">
+              <td className="p-4 font-semibold text-text-primary align-top">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={isModuleAllSelected(mod)}
+                    onChange={() => toggleModulePermissions(mod)}
+                    className="w-4 h-4 text-primary-teal border-zinc-300 rounded focus:ring-primary-teal cursor-pointer"
+                  />
+                  <span>{mod.module}</span>
+                </div>
               </td>
               <td className="p-4">
                 <div className="flex flex-wrap gap-x-8 gap-y-3">
                   {mod.perms.map(perm => (
-                    <label key={perm} className="flex items-center gap-2 cursor-pointer font-medium text-zinc-600  min-w-[120px]">
-                      <div className="relative flex items-center justify-center">
-                        <input
-                          type="checkbox"
-                          checked={!!selectedPerms[perm]}
-                          onChange={() => togglePerm(perm)}
-                          className="peer h-4 w-4 opacity-0 absolute cursor-pointer"
-                        />
-                        <div className="h-4 w-4 border border-zinc-300 rounded flex items-center justify-center peer-checked:bg-primary-teal peer-checked:border-primary-teal transition-all">
-                          <CheckCircle className="text-white hidden peer-checked:block" style={{ fontSize: 12 }} />
-                          <RadioButtonUnchecked className="text-zinc-300 block peer-checked:hidden" style={{ fontSize: 12 }} />
-                        </div>
-                      </div>
+                    <label key={perm} className="flex items-center gap-2 cursor-pointer font-medium text-text-secondary min-w-[150px]">
+                      <input
+                        type="checkbox"
+                        checked={!!selectedPerms[perm]}
+                        onChange={() => togglePerm(perm)}
+                        className="w-4 h-4 text-primary-teal border-zinc-300 rounded focus:ring-primary-teal cursor-pointer"
+                      />
                       <span className="text-xs uppercase tracking-tight">{perm}</span>
                     </label>
                   ))}
@@ -175,14 +302,14 @@ export default function RolesListPage() {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-6">
+      <div className="bg-white dark:bg-zinc-950 p-6 border border-zinc-200 dark:border-zinc-900 rounded-md shadow-sm space-y-6">
         
         {/* Header Block */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6">
-          <h2 className="text-xl font-bold text-zinc-800 ">
-            Roles List
-          </h2>
-          <div className="flex items-center gap-4">
+        <div className="border-b border-zinc-100 dark:border-zinc-900 pb-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">
+              Roles List
+            </h2>
             <Button 
               onClick={() => { 
                 clear();
@@ -193,35 +320,60 @@ export default function RolesListPage() {
               Add Role
             </Button>
           </div>
-        </div>
-
-        {/* Table Controls */}
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-4">
+          {/* Export Buttons */}
           <div className="flex items-center gap-1.5">
-            <Button variant="primary" size="sm" className="px-3 text-xs">Copy</Button>
-            <Button variant="primary" size="sm" className="px-3 text-xs">Excel</Button>
-            <Button variant="primary" size="sm" className="px-3 text-xs">CSV</Button>
-            <Button variant="primary" size="sm" className="px-3 text-xs">PDF</Button>
-          </div>
-          <div className="text-xs text-zinc-500 flex items-center gap-1.5 font-medium">
-            Search:
-            <input
-              type="text"
-              placeholder=""
-              className="bg-zinc-50  border border-zinc-200  rounded-lg py-1.5 px-2 text-xs focus:ring-1 focus:ring-primary-teal outline-none"
-            />
+            <button onClick={() => handleExport('copy')} disabled={exportLoading}
+              className={`px-3 py-1 text-[10px] font-semibold rounded border transition-all disabled:opacity-50 ${
+                copySuccess ? 'bg-emerald-600 border-emerald-600 text-white' : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'
+              }`}>{copySuccess ? 'Copied!' : 'Copy'}</button>
+            <button onClick={() => handleExport('excel')} disabled={exportLoading}
+              className="px-3 py-1 text-[10px] font-semibold rounded border bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all disabled:opacity-50">Excel</button>
+            <button onClick={() => handleExport('csv')} disabled={exportLoading}
+              className="px-3 py-1 text-[10px] font-semibold rounded border bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all disabled:opacity-50">CSV</button>
+            <button onClick={() => handleExport('pdf')} disabled={exportLoading}
+              className="px-3 py-1 text-[10px] font-semibold rounded border bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all disabled:opacity-50">PDF</button>
+            {exportLoading && <span className="text-[10px] text-zinc-400 ml-1">Exporting...</span>}
           </div>
         </div>
 
-        <Table data={roles} columns={columns} searchable={false} />
+        {error && (
+          <div className="text-sm text-rose-500 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded px-3 py-2">
+            {error}
+          </div>
+        )}
+
+        <Table 
+          data={roles} 
+          columns={columns} 
+          searchable={true} 
+          searchPlaceholder="Search roles..."
+          idField="_id"
+          isLoading={loading}
+          serverSide={true}
+          totalCount={total}
+          currentPage={page}
+          rowsPerPage={limit}
+          onPageChange={(p, l) => { setPage(p); setLimit(l); }}
+          onSearchChange={(s) => { setSearch(s); setPage(1); }}
+        />
       </div>
 
       {/* Add Role Modal */}
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Add Role" sizeClass="max-w-5xl">
         <form onSubmit={handleCreate} className="space-y-4">
           <Input label="Name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Enter Name" />
+          {formErrors.name && <p className="text-rose-500 text-[11px] mt-1">{formErrors.name}</p>}
           
-          <h4 className="font-bold text-zinc-800  pt-4">Assign Permissions to Roles</h4>
+          <div className="flex items-center justify-between pt-4">
+            <h4 className="font-bold text-zinc-800 dark:text-zinc-200">Assign Permissions to Roles</h4>
+            <button
+              type="button"
+              onClick={toggleAllPermissions}
+              className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-primary-teal hover:bg-primary-teal/5 border border-primary-teal/20 rounded-lg transition-all"
+            >
+              {isAllSelected ? "Deselect All" : "Select All"}
+            </button>
+          </div>
           {renderPermissionsTable()}
           
           <div className="flex justify-end pt-4">
@@ -240,8 +392,18 @@ export default function RolesListPage() {
       <Modal isOpen={editOpen} onClose={() => setEditOpen(false)} title="Edit Role" sizeClass="max-w-5xl">
         <form onSubmit={handleEdit} className="space-y-4">
           <Input label="Name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Enter Name" />
+          {formErrors.name && <p className="text-rose-500 text-[11px] mt-1">{formErrors.name}</p>}
           
-          <h4 className="font-bold text-zinc-800  pt-4">Assign Permissions to Roles</h4>
+          <div className="flex items-center justify-between pt-4">
+            <h4 className="font-bold text-zinc-800 dark:text-zinc-200">Assign Permissions to Roles</h4>
+            <button
+              type="button"
+              onClick={toggleAllPermissions}
+              className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-primary-teal hover:bg-primary-teal/5 border border-primary-teal/20 rounded-lg transition-all"
+            >
+              {isAllSelected ? "Deselect All" : "Select All"}
+            </button>
+          </div>
           {renderPermissionsTable()}
 
           <div className="flex justify-end pt-4">

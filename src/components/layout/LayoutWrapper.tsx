@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { MockDbProvider } from "../../context/MockDbContext";
+
 import { ToastProvider } from "../../context/ToastContext";
 import {
   Dashboard as DashboardIcon,
@@ -85,7 +85,7 @@ export const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ childre
   if (pathname === "/login" || pathname === "/") {
     return (
       <ToastProvider>
-        <MockDbProvider>{children}</MockDbProvider>
+        {children}
       </ToastProvider>
     );
   }
@@ -93,11 +93,9 @@ export const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ childre
   if (!isAuthenticated) {
     return (
       <ToastProvider>
-        <MockDbProvider>
-          <div className="min-h-screen bg-background flex items-center justify-center text-text-primary font-sans">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-primary-teal"></div>
-          </div>
-        </MockDbProvider>
+        <div className="min-h-screen bg-background flex items-center justify-center text-text-primary font-sans">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-primary-teal"></div>
+        </div>
       </ToastProvider>
     );
   }
@@ -141,8 +139,7 @@ export const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ childre
 
   return (
     <ToastProvider>
-      <MockDbProvider>
-        <div className="h-screen w-screen flex overflow-hidden bg-background text-text-primary font-sans transition-all duration-300">
+      <div className="h-screen w-screen flex overflow-hidden bg-background text-text-primary font-sans transition-all duration-300">
           
           {/* Desktop Sidebar (Fixed & Independent Scrolling area) */}
           <aside className="hidden lg:flex flex-col w-64 border-r border-border-ui bg-card-bg shrink-0 h-full overflow-hidden">
@@ -348,7 +345,6 @@ export const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ childre
           </div>
           
         </div>
-      </MockDbProvider>
-    </ToastProvider>
-  );
-};
+      </ToastProvider>
+    );
+  };

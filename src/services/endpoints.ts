@@ -27,9 +27,35 @@ export interface EndPointApi {
   reasonToCallDelete: string;
   reasonToCallExport: string;
 
+  // Roles
+  roles: string;
+  roleCreate: string;
+  roleUpdate: string;
+  roleDelete: string;
+  roleExport: string;
+
   // Users
   users: string;
   userCreate: string;
+  userUpdate: string;
+  userDelete: string;
+  userExport: string;
+
+  // Auth
+  authLogin: string;
+
+  // Teams
+  teams: string;
+  teamCreate: string;
+  teamUpdate: string;
+  teamDelete: string;
+  teamExport: string;
+
+  // Couriers
+  couriers: string;
+  courierCreate: string;
+  courierUpdate: string;
+  courierDelete: string;
 }
 
 const endPointApi: EndPointApi = {
@@ -61,9 +87,35 @@ const endPointApi: EndPointApi = {
   reasonToCallDelete: 'reason-to-calls',
   reasonToCallExport: 'reason-to-calls/export',
 
+  // Roles
+  roles: 'roles',
+  roleCreate: 'roles',
+  roleUpdate: 'roles',
+  roleDelete: 'roles',
+  roleExport: 'roles/export',
+
   // Users
   users: 'users',
   userCreate: 'users',
+  userUpdate: 'users',
+  userDelete: 'users',
+  userExport: 'users/export',
+
+  // Auth
+  authLogin: 'auth/login',
+
+  // Teams
+  teams: 'teams',
+  teamCreate: 'teams',
+  teamUpdate: 'teams',
+  teamDelete: 'teams',
+  teamExport: 'teams/export',
+
+  // Couriers
+  couriers: 'couriers',
+  courierCreate: 'couriers',
+  courierUpdate: 'couriers',
+  courierDelete: 'couriers',
 };
 
 export default endPointApi;

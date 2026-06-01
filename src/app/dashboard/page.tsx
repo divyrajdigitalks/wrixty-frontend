@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useMockDb } from "../../context/MockDbContext";
+import { fetchUsers, User } from "../../services/userService";
 import { Table, Column } from "../../components/common/Table";
 import {
   TrendingUp,
@@ -12,7 +12,31 @@ import {
 } from "@mui/icons-material";
 
 export default function DashboardPage() {
-  const { products, leads, orders, returnOrders, users } = useMockDb();
+  const [users, setUsers] = React.useState<User[]>([]);
+  const [leads, setLeads] = React.useState<any[]>([
+    { id: "1", name: "Rajesh Kumar", phone_number: "9988776655", product: "Wrixty Ashwagandha Gold", amount: 1200, quantity: 2, subtotal: 2400, assgin: "Aman Sharma", date: "2026-05-29", time: "10:30", status: "New", note: "Interested in stress relief products." },
+    { id: "2", name: "Suresh Gupta", phone_number: "8877665544", product: "Wrixty Triphala Digest", amount: 650, quantity: 1, subtotal: 650, assgin: "Priya Patel", date: "2026-05-29", time: "11:15", status: "Call Back", note: "Wants to consult with doctor first." },
+    { id: "3", name: "Neha Sharma", phone_number: "7766554433", product: "Wrixty Shatavari Hormonal Balance", amount: 1100, quantity: 1, subtotal: 1100, assgin: "Aman Sharma", date: "2026-05-30", time: "09:00", status: "In-Progress", note: "Inquiring about hormonal balance pack." },
+    { id: "4", name: "Ramesh Patel", phone_number: "9012345678", product: "Wrixty Brahmi Mind Focus", amount: 890, quantity: 3, subtotal: 2670, assgin: "Vikram Singh", date: "2026-05-28", time: "16:20", status: "Pending", note: "Asked for discount." }
+  ]);
+  const [orders, setOrders] = React.useState<any[]>([
+    { id: "1", leadId: "4", name: "Ramesh Patel", phone_number: "9012345678", product: "Wrixty Brahmi Mind Focus", amount: 890, quantity: 3, subtotal: 2670, grandTotal: 2670, date: "2026-05-28", paymentType: "COD", courier: "Delhivery", assginTo: "Vikram Singh", transactionId: "TXN90283019", status: "Dispatched" }
+  ]);
+  const [returnOrders, setReturnOrders] = React.useState<any[]>([
+    { id: "1", customerName: "Anil Saxena", phone_number: "9123456780", assginTo: "Aman Sharma", orderDate: "2026-05-20", returnDate: "2026-05-25", product: "Wrixty Neem Blood Purify", amount: 450, quantity: 2, subtotal: 900, type: "Wrong Product Delivered" }
+  ]);
+
+  React.useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const res = await fetchUsers({ page: 1, limit: 100 });
+        setUsers(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    loadUsers();
+  }, []);
 
   // 1. Calculations
   const totalLeads = leads.filter(l => !l.isDeleted).length;

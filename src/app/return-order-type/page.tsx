@@ -160,8 +160,6 @@ export default function ReturnOrderTypePage() {
           rowsPerPage={limit}
           onPageChange={(p, l) => { setPage(p); setLimit(l); }}
           onSearchChange={(s) => { setSearch(s); setPage(1); }}
-          exportData={types}
-          exportFilename="return-order-types"
         />
       </div>
 
