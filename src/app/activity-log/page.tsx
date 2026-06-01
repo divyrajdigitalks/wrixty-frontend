@@ -11,11 +11,11 @@ export default function ActivityLogPage() {
 
   const [filterUser, setFilterUser] = useState("all");
 
-  // Synthesize logs from leads & orders updates
+  
   const logs = React.useMemo(() => {
     const list: { id: string; date: string; user: string; lead: string; message: string }[] = [];
     
-    // Some mock data matching screenshot for a better demo
+    
     list.push({ id: "log-1", date: "30/05/2026 12:55 pm", user: "Dhruvi Dhameliya", lead: "AJAYBHAI SOLANKI", message: "Lead Created successfully" });
     list.push({ id: "log-2", date: "30/05/2026 12:35 pm", user: "Dhara patel", lead: "HEMA PATEL", message: "Lead Created successfully" });
     list.push({ id: "log-3", date: "30/05/2026 12:35 pm", user: "Dhara patel", lead: "N/A", message: "Lead Convert To Order successfully" });
@@ -25,7 +25,7 @@ export default function ActivityLogPage() {
     list.push({ id: "log-7", date: "30/05/2026 12:32 pm", user: "Dipali", lead: "N/A", message: "Lead Created successfully" });
     list.push({ id: "log-8", date: "30/05/2026 12:29 pm", user: "Dhara patel", lead: "N/A", message: "Lead Status Change successfully" });
     list.push({ id: "log-9", date: "30/05/2026 12:29 pm", user: "Dhara patel", lead: "N/A", message: "Lead Status Two Change successfully" });
-    list.push({ id: "log-10", date: "30/05/2026 12:26 pm", user: "Dhara patel", lead: "N/A", message: "Lead Created successfully" });
+    list.push({ id: "log-10", date:"30/05/2026 12:26 pm", user: "Dhara patel", lead: "N/A", message: "Lead Created successfully" });
 
     leads.forEach((l, i) => {
       list.push({
@@ -69,10 +69,10 @@ export default function ActivityLogPage() {
 
   return (
     <div className="space-y-6">
-      {/* Main White Card */}
+    
       <div className="bg-white dark:bg-zinc-950 p-6 border border-zinc-200 dark:border-zinc-900 rounded-md shadow-sm space-y-6">
         
-        {/* Inline Filters & Action Buttons matching screenshot */}
+       
         <div className="flex flex-wrap items-center justify-end gap-3 border-b border-zinc-100 dark:border-zinc-900 pb-4">
           <div className="w-full sm:w-auto min-w-[160px]">
             <Select
@@ -88,20 +88,20 @@ export default function ActivityLogPage() {
             />
           </div>
           
-          <Button variant="secondary">
+          <Button variant="primary">
             Apply Filter
           </Button>
-          <Button variant="danger" onClick={() => setFilterUser("all")}>
+          <Button variant="outline" onClick={() => setFilterUser("all")}>
             Clear Filter
           </Button>
           
           <div className="flex items-center gap-3 ml-2">
             <span className="text-xs font-semibold text-zinc-500 bg-zinc-100 dark:bg-zinc-900 px-3 py-2 rounded border border-zinc-200/50 dark:border-zinc-800">
-              📅 May 30, 2026 - May 30, 2026
+              📅 May 30, 2026 - May 30, 2526
             </span>
           </div>
 
-          <Button variant="success">
+          <Button variant="outline">
             Export
           </Button>
         </div>

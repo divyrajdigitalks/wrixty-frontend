@@ -166,12 +166,16 @@ export default function LeadListPage() {
       key: "status",
       header: "Status",
       render: (val) => {
-        let badgeColor = "bg-yellow-500"; // Open
-        if (val === "Inprogress" || val === "In-Progress") badgeColor = "bg-emerald-500";
-        if (val === "Close" || val === "Closed") badgeColor = "bg-rose-500";
+        let badgeClass = "bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20"; // Open / New
+        if (val === "Inprogress" || val === "In-Progress") {
+          badgeClass = "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20";
+        }
+        if (val === "Close" || val === "Closed") {
+          badgeClass = "bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20";
+        }
         
         return (
-          <span className={`px-3 py-1.5 text-xs font-bold text-white rounded-md ${badgeColor}`}>
+          <span className={`inline-block whitespace-nowrap px-2.5 py-1 text-[11px] font-bold rounded-md text-center ${badgeClass}`}>
             {val}
           </span>
         );
@@ -208,7 +212,7 @@ export default function LeadListPage() {
       render: (_, row) => (
         <button
           onClick={() => openNoteModal(row)}
-          className="p-2 bg-amber-700 hover:bg-amber-600 text-white rounded-sm shadow-sm transition-all"
+          className="p-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded transition-all border border-amber-500/20 shadow-sm inline-flex items-center justify-center"
           title={row.note || "No note"}
         >
           <Note className="w-4 h-4" />
@@ -223,14 +227,14 @@ export default function LeadListPage() {
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => openEditModal(row)}
-            className="p-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded transition-all"
+            className="p-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-650 dark:text-indigo-400 rounded border border-indigo-500/20 transition-all inline-flex items-center justify-center"
             title="Edit Lead"
           >
             <Edit className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => deleteLead(row.id)}
-            className="p-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded transition-all"
+            className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 rounded border border-rose-500/20 transition-all inline-flex items-center justify-center"
             title="Delete Lead"
           >
             <Delete className="w-3.5 h-3.5" />
@@ -312,13 +316,13 @@ export default function LeadListPage() {
           
           <div className="flex flex-wrap items-center gap-2">
             <Button
-              variant="secondary"
+              variant="primary"
               onClick={() => toast.info("Filter parameters applied successfully.")}
             >
               Apply Filter
             </Button>
             <Button
-              variant="danger"
+              variant="outline"
               onClick={() => {
                 setFilterProduct("all");
                 setFilterAssignee("all");
@@ -330,13 +334,13 @@ export default function LeadListPage() {
               Clear Filter
             </Button>
             <Button
-              variant="primary"
+              variant="secondary"
               onClick={() => toast.info("Assigned lead workflow initiated.")}
             >
               Assign Lead
             </Button>
             <Button
-              variant="success"
+              variant="outline"
               onClick={() => toast.success("Lead data successfully exported to Excel!")}
             >
               Export

@@ -206,21 +206,21 @@ export default function OrderListPage() {
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => openEdit(row)}
-            className="p-1.5 bg-green-600 hover:bg-green-500 text-white rounded transition-all shadow-sm"
+            className="p-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-650 dark:text-indigo-400 rounded border border-indigo-500/20 transition-all inline-flex items-center justify-center shadow-sm"
             title="Edit Order"
           >
             <Edit className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => handleDelete(row.id)}
-            className="p-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded transition-all shadow-sm"
+            className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 rounded border border-rose-500/20 transition-all inline-flex items-center justify-center shadow-sm"
             title="Delete Order"
           >
             <Delete className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => openRepeat(row)}
-            className="p-1.5 bg-teal-800 hover:bg-teal-700 text-white rounded transition-all shadow-sm"
+            className="p-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded border border-emerald-500/20 transition-all inline-flex items-center justify-center shadow-sm"
             title="Repeat Order"
           >
             <Replay className="w-3.5 h-3.5" />
@@ -421,13 +421,13 @@ export default function OrderListPage() {
           
           <div className="flex flex-wrap items-center gap-2">
             <Button
-              variant="secondary"
+              variant="primary"
               onClick={() => toast.info("Filters applied.")}
             >
               Apply Filter
             </Button>
             <Button
-              variant="danger"
+              variant="outline"
               onClick={() => {
                 setFilterProduct("all");
                 setFilterAssignee("all");
@@ -438,7 +438,7 @@ export default function OrderListPage() {
               Clear Filter
             </Button>
             <Button
-              variant="success"
+              variant="outline"
               onClick={() => toast.success("Order data successfully exported to Excel!")}
             >
               Export
