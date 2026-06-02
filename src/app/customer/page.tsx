@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   fetchCustomers,
+  createCustomerApi,
   updateCustomerApi,
   deleteCustomerApi,
   Customer,
@@ -21,6 +22,7 @@ export default function CustomerPage() {
   const toast = useToast();
 
   const [editOpen, setEditOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
   const [activeCustomer, setActiveCustomer] = useState<Customer | null>(null);
 
   const [name, setName] = useState("");
@@ -57,6 +59,25 @@ export default function CustomerPage() {
     }
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
+  };
+
+  const openAdd = () => {
+    clear();
+    setAddOpen(true);
+  };
+
+  const handleAddSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
+    try {
+      await createCustomerApi({ name, phone_number: phone });
+      setAddOpen(false);
+      clear();
+      toast.success("Customer added successfully.");
+      loadCustomers();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Failed to add customer.");
+    }
   };
 
   const openEdit = (customer: Customer) => {
@@ -137,6 +158,13 @@ export default function CustomerPage() {
         <div className="pb-4 space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-zinc-800">Customer Master</h2>
+            <Button
+              variant="primary"
+              className="rounded-lg px-6 bg-teal-800 hover:bg-teal-700"
+              onClick={openAdd}
+            >
+              Add Customer
+            </Button>
           </div>
         </div>
 
@@ -150,6 +178,36 @@ export default function CustomerPage() {
           serverSide={false}
         />
       </div>
+
+      {/* Add Customer Modal */}
+      <Modal isOpen={addOpen} onClose={() => { setAddOpen(false); clear(); }} title="Add Customer">
+        <form onSubmit={handleAddSubmit} className="space-y-4" noValidate>
+          <div>
+            <Input label="Name" value={name} onChange={(e) => { setName(e.target.value); setFormErrors(p => ({ ...p, name: undefined })); }} placeholder="Enter customer name" />
+            {formErrors.name && <p className="text-rose-500 text-[11px] mt-1">{formErrors.name}</p>}
+          </div>
+          <div>
+            <Input
+              label="Phone Number"
+              type="text"
+              value={phone}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, "");
+                if (val.length <= 10) {
+                  setPhone(val);
+                  setFormErrors(p => ({ ...p, phone: undefined }));
+                }
+              }}
+              placeholder="10-digit phone number"
+            />
+            {formErrors.phone && <p className="text-rose-500 text-[11px] mt-1">{formErrors.phone}</p>}
+          </div>
+          <div className="flex items-center gap-3 pt-2">
+            <Button type="submit" variant="primary" className="flex-1 bg-teal-800 hover:bg-teal-700">Add Customer</Button>
+            <Button type="button" variant="outline" className="flex-1" onClick={() => { setAddOpen(false); clear(); }}>Cancel</Button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Edit Modal */}
       <Modal isOpen={editOpen} onClose={() => { setEditOpen(false); clear(); }} title="Edit Customer">

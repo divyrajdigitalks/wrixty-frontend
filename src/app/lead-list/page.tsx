@@ -207,6 +207,10 @@ export default function LeadListPage() {
   const [selectedCourier, setSelectedCourier] = useState("Delhivery");
   const [transactionId, setTransactionId] = useState("");
 
+  const [assignModalOpen, setAssignModalOpen] = useState(false);
+  const [assignToUserId, setAssignToUserId] = useState("");
+  const [isAssigningLead, setIsAssigningLead] = useState(false);
+
   const [filterProduct, setFilterProduct] = useState("all");
   const [filterAssignee, setFilterAssignee] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -228,6 +232,32 @@ export default function LeadListPage() {
     updateLead(activeLead.id, { note: noteText });
     toast.success("Note saved successfully!");
     setNoteModalOpen(false);
+  };
+
+  const handleBulkAssign = async () => {
+    if (!assignToUserId) {
+      toast.warning("Please select a user to assign!");
+      return;
+    }
+    setIsAssigningLead(true);
+    try {
+      await Promise.all(selectedIds.map(id => updateLeadApi(id, { assgin: assignToUserId })));
+      // Update local table: set assgin name from users list
+      const assignedUser = users.find((u: any) => (u._id || u.id) === assignToUserId);
+      setLeads(prev => prev.map(l =>
+        selectedIds.includes(l.id)
+          ? { ...l, assgin: assignedUser?.name || assignToUserId, assginId: assignToUserId }
+          : l
+      ));
+      toast.success(`${selectedIds.length} lead(s) assigned to ${assignedUser?.name || "user"} successfully!`);
+      setSelectedIds([]);
+      setAssignModalOpen(false);
+      setAssignToUserId("");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Bulk assign failed");
+    } finally {
+      setIsAssigningLead(false);
+    }
   };
 
   const handleBulkDelete = async () => {
@@ -552,6 +582,22 @@ export default function LeadListPage() {
             >
               Clear Filter
             </Button>
+            {hasPermission("Lead-transfer") && (
+              <Button
+                variant="primary"
+                className="rounded-lg bg-teal-700 hover:bg-teal-600"
+                onClick={() => {
+                  if (selectedIds.length === 0) {
+                    toast.warning("Please select at least one lead to assign!");
+                    return;
+                  }
+                  setAssignToUserId("");
+                  setAssignModalOpen(true);
+                }}
+              >
+                Assign Lead
+              </Button>
+            )}
             <Button
               variant="outline"
               className="rounded-lg"
@@ -572,6 +618,7 @@ export default function LeadListPage() {
                   variant="outline"
                   size="sm"
                   className="bg-card-bg border-primary-teal/20 text-primary-teal rounded-lg"
+                  onClick={() => { setAssignToUserId(""); setAssignModalOpen(true); }}
                 >
                   <SwapHoriz className="w-4 h-4 mr-2" /> Bulk Assign
                 </Button>
@@ -605,6 +652,61 @@ export default function LeadListPage() {
           }}
         />
       </div>
+
+      {/* Assign Leads Modal */}
+      <Modal isOpen={assignModalOpen} onClose={() => setAssignModalOpen(false)} title="Assign Leads">
+        <div className="space-y-5">
+          {/* Selection count badge */}
+          <div className="flex items-center gap-2 p-3 bg-primary-teal/5 border border-primary-teal/20 rounded-lg">
+            <SwapHoriz className="w-4 h-4 text-primary-teal" />
+            <span className="text-sm font-semibold text-primary-teal">
+              {selectedIds.length} lead{selectedIds.length !== 1 ? "s" : ""} selected
+            </span>
+          </div>
+
+          {/* Assign To dropdown */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-text-secondary uppercase tracking-wider">
+              Assign To
+            </label>
+            <Select
+              value={assignToUserId}
+              onChange={(e) => setAssignToUserId(e.target.value)}
+              options={[
+                { value: "", label: "Select a user..." },
+                ...users.map((u: any) => ({ value: u._id || u.id, label: u.name }))
+              ]}
+            />
+            {assignToUserId && (() => {
+              const u = users.find((u: any) => (u._id || u.id) === assignToUserId);
+              return u?.email ? (
+                <p className="text-[11px] text-text-secondary mt-1">✉ {u.email}</p>
+              ) : null;
+            })()}
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex items-center gap-3 pt-2">
+            <Button
+              variant="primary"
+              className="flex-1 bg-teal-700 hover:bg-teal-600"
+              onClick={handleBulkAssign}
+              isLoading={isAssigningLead}
+              disabled={!assignToUserId}
+            >
+              Assign
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setAssignModalOpen(false)}
+              disabled={isAssigningLead}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
       <Modal isOpen={convertModalOpen} onClose={() => setConvertModalOpen(false)} title="Lead Convert To Order" sizeClass="max-w-4xl" isLoading={isConvertingLead} >
         <form onSubmit={handleConvertSubmit} className="space-y-4">

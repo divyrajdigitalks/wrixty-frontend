@@ -3,28 +3,45 @@
 import React, { useState, useEffect } from "react";
 import { fetchStatuses } from "../../services/statusService";
 import { fetchLeads, updateLeadApi } from "../../services/leadService";
+import { fetchUsers } from "../../services/userService";
 import { usePermission } from "../../utils/permissionUtils";
 
 export default function KanbanListPage() {
   const { hasPermission } = usePermission();
   const [statuses, setStatuses] = useState<any[]>([]);
   const [leads, setLeads] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [statusesRes, leadsRes] = await Promise.all([
+        const [statusesRes, leadsRes, usersRes] = await Promise.all([
           fetchStatuses({ page: 1, limit: 100 }),
-          fetchLeads({ page: 1, limit: 500 }) // fetching more for kanban board
+          fetchLeads({ page: 1, limit: 500 }), // fetching more for kanban board
+          fetchUsers({ page: 1, limit: 100 })
         ]);
         setStatuses(statusesRes.data);
-        const mappedLeads = leadsRes.data.map((l: any) => ({
-          ...l,
-          id: l._id || l.id,
-          statusName: l.status?.name || l.status || "Open",
-          productName: l.product || (l.products?.map((p:any) => p.name).join(", ") || "No Product")
-        }));
+        setUsers(usersRes.data);
+        const usersLookup: Record<string, { name: string; email: string }> = {};
+        usersRes.data.forEach((u: any) => {
+          usersLookup[u._id || u.id] = { name: u.name || "", email: u.email || "" };
+        });
+        const mappedLeads = leadsRes.data.map((l: any) => {
+          // assgin may be a populated object OR a raw ID string
+          const assginId  = l.assgin?._id || (typeof l.assgin === "string" ? l.assgin : "") || "";
+          const fromObj   = { name: l.assgin?.name || "", email: l.assgin?.email || "" };
+          const fromLookup = assginId ? (usersLookup[assginId] || { name: "", email: "" }) : { name: "", email: "" };
+          return {
+            ...l,
+            id: l._id || l.id,
+            statusName:  l.status?.name || l.status || "Open",
+            productName: l.product || (l.products?.map((p: any) => p.name).join(", ") || "No Product"),
+            assginId,
+            assginName:  fromObj.name  || fromLookup.name,
+            assginEmail: fromObj.email || fromLookup.email,
+          };
+        });
         setLeads(mappedLeads);
       } catch (err) {
         console.error(err);
@@ -75,21 +92,19 @@ export default function KanbanListPage() {
   };
 
   return (
-    <div className="space-y-8 p-1">
+    <div className="space-y-6">
       {/* Header Panel */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-border-ui pb-6">
-        <div className="space-y-2">
-          <h2 className="text-3xl font-extrabold tracking-tight text-gradient-primary">
-            Lead Kanban Board
-          </h2>
-          <p className="text-sm text-text-secondary font-medium">
-            Quickly advance leads across stages visually via drag & drop.
-          </p>
-        </div>
+      <div className="space-y-1">
+        <h2 className="text-xl font-bold text-zinc-900">
+          Kanban Board
+        </h2>
+        <p className="text-xs text-zinc-500 font-medium tracking-wide">
+          Quickly advance leads across stages visually via drag & drop
+        </p>
       </div>
 
       {/* Board Scrollable container */}
-      <div className="flex gap-6 overflow-x-auto pb-6 items-start select-none no-scrollbar">
+      <div className="flex gap-4 overflow-x-auto pb-4 items-start select-none">
         {statuses.map((stage) => {
           const stageLeads = activeLeads.filter(l => l.statusName === stage.name);
           const stageColor = stage.color || "#0F766E";
@@ -99,94 +114,83 @@ export default function KanbanListPage() {
               key={stage.id || stage._id}
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, stage)}
-              className="w-80 shrink-0 bg-card-bg border border-border-ui rounded-xl p-5 space-y-4 shadow-soft"
+              className="w-72 shrink-0 bg-white border border-zinc-200 rounded-lg p-4 space-y-4 shadow-sm"
             >
-              {/* Column Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-border-ui/60">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-3 h-3 rounded-full shadow-sm animate-pulse" style={{ backgroundColor: stageColor }} />
-                  <h4 className="text-sm font-bold text-text-primary">
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-zinc-100 pb-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: stageColor }} />
+                  <h4 className="text-xs font-semibold text-zinc-700">
                     {stage.name}
                   </h4>
                 </div>
-                <span 
-                  className="text-xs font-bold px-2.5 py-0.5 rounded-full border" 
-                  style={{ 
-                    color: stageColor, 
-                    borderColor: `${stageColor}30`, 
-                    backgroundColor: `${stageColor}08` 
-                  }}
-                >
+                <span className="text-[10px] font-bold px-2 py-0.5 bg-zinc-50 text-zinc-500 rounded-lg border border-zinc-200">
                   {stageLeads.length}
                 </span>
               </div>
 
               {/* Cards List */}
-              <div className="space-y-3.5 min-h-[250px] max-h-[70vh] overflow-y-auto pr-1">
+              <div className="space-y-3 min-h-[150px] max-h-[70vh] overflow-y-auto pr-1">
                 {stageLeads.length > 0 ? (
                   stageLeads.map((lead) => (
                     <div
                       key={lead.id}
                       draggable={hasPermission("Kanban-update")}
                       onDragStart={(e) => handleDragStart(e, lead.id)}
-                      className={`group relative p-4 bg-card-bg border border-border-ui/80 rounded-xl shadow-sm hover:shadow-soft transition-all duration-200 text-left ${
+                      className={`group relative p-3.5 bg-zinc-50 border border-zinc-200/50 rounded-lg shadow-sm text-left transition-all ${
                         hasPermission("Kanban-update") 
-                          ? "cursor-grab active:cursor-grabbing hover:-translate-y-1 hover:border-primary-teal/40" 
+                          ? "cursor-grab active:cursor-grabbing hover:shadow-md hover:border-primary-teal/30" 
                           : "cursor-default"
-                      } ${draggedLeadId === lead.id ? 'opacity-30 border-dashed border-primary-teal bg-primary-teal/5' : ''}`}
+                      } ${draggedLeadId === lead.id ? 'opacity-50 border-dashed' : ''}`}
                     >
-                      {/* Left color bar accent matching status color */}
+                      {/* Left side color border matching status column color */}
                       <div 
-                        className="absolute left-0 top-3 bottom-3 w-1 rounded-r-lg" 
+                        className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full" 
                         style={{ backgroundColor: stageColor }}
                       />
 
-                      {/* Header Info */}
-                      <div className="pl-2 space-y-3">
-                        <div className="flex items-start justify-between gap-2">
-                          <h5 className="text-xs font-bold text-text-primary uppercase tracking-wide line-clamp-1 group-hover:text-primary-teal transition-colors">
-                            {lead.name}
-                          </h5>
-                          {lead.subtotal !== undefined && (
-                            <span className="text-xs font-extrabold text-text-primary shrink-0">
-                              ₹{lead.subtotal}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Product Tag */}
-                        {lead.productName && (
-                          <div className="flex">
-                            <span className="text-[10px] px-2.5 py-0.5 bg-gradient-subtle text-primary-teal font-bold rounded-lg border border-primary-teal/10">
-                              {lead.productName}
-                            </span>
-                          </div>
+                      {/* Default Visible Content */}
+                      <div className="pl-3 space-y-0.5">
+                        <h5 className="text-xs font-bold text-zinc-800 uppercase tracking-wide">
+                          {lead.assginName || lead.name || "-"}
+                        </h5>
+                        {lead.assginEmail && (
+                          <p className="text-[10px] text-primary-teal font-medium truncate">
+                            ✉ {lead.assginEmail}
+                          </p>
                         )}
+                        {/* <p className="text-[10px] text-zinc-500 font-semibold">
+                          📞 {lead.phone_number}
+                        </p> */}
+                      </div>
 
-                        {/* Contact details */}
-                        <div className="flex items-center justify-between text-[10px] text-text-secondary font-semibold pt-2.5 border-t border-border-ui/50">
-                          <span className="flex items-center gap-1.5 hover:text-text-primary transition-colors">
-                            <span className="text-xs">📞</span> {lead.phone_number}
+                      {/* Hover Expanded Content */}
+                      <div className="hidden group-hover:block pt-3 mt-3 space-y-2.5 border-t border-zinc-200 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] px-1.5 py-0.5 bg-primary-teal/10 text-primary-teal font-bold rounded-lg">
+                            {lead.productName}
                           </span>
-                          {lead.date && (
-                            <span className="text-text-secondary/70 text-[9px]">{lead.date}</span>
-                          )}
+                          <span className="text-[10px] font-black text-zinc-700">
+                            ₹{lead.subtotal}
+                          </span>
                         </div>
 
-                        {/* Note preview */}
                         {lead.note && (
-                          <p className="text-[10px] text-text-secondary bg-background/50 p-2.5 rounded-lg border border-border-ui/60 line-clamp-2 italic">
+                          <p className="text-[10px] text-zinc-500 line-clamp-3 bg-zinc-100 p-2 rounded-lg">
                             {lead.note}
                           </p>
                         )}
+                        
+                        <div className="flex items-center justify-between text-[9px] font-semibold text-zinc-400 uppercase tracking-wider">
+                          <span>Qty: {lead.quantity}</span>
+                          <span>{lead.date}</span>
+                        </div>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-48 border border-dashed border-border-ui/80 rounded-xl bg-background/40 text-text-secondary p-4 text-center">
-                    <span className="text-2xl mb-2 animate-bounce">✨</span>
-                    <p className="text-xs font-bold text-text-primary">Drop leads here</p>
-                    <p className="text-[10px] text-text-secondary/80 mt-1">Ready to receive opportunities</p>
+                  <div className="flex items-center justify-center h-full min-h-[100px] border-2 border-dashed border-zinc-200 rounded-lg bg-zinc-50/50 text-[10px] text-zinc-400 font-medium tracking-wide">
+                    Drop leads here
                   </div>
                 )}
               </div>

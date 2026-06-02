@@ -37,9 +37,11 @@ export interface Order {
 
 interface SelectedProductRow {
   id: string;
+  productId?: string;
   name: string;
   amount: number;
   quantity: number;
+  subtotal?: number;
 }
 
 export default function OrderListPage() {
@@ -84,7 +86,9 @@ export default function OrderListPage() {
         courier: o.courier || "",
         assginTo: o.assginTo?.name || o.assginTo || "",
         transactionId: o.transactionId || "",
-        status: o.status || "Dispatched"
+        status: o.status || "Dispatched",
+        // Store raw products array for edit modal
+        _products: o.products || []
       }));
       setOrders(mapped);
     } catch (err) {
@@ -179,28 +183,36 @@ export default function OrderListPage() {
   // Handle adding product to modal table
   const handleAddProduct = () => {
     if (!modalProductSelect) return;
-    const prod = products.find(p => p.name === modalProductSelect);
+    const prod = products.find(p => (p._id || p.id) === modalProductSelect);
     if (!prod) return;
 
-    if (modalSelectedProducts.some(p => p.id === prod.id)) {
-      toast.warning("Product already added!");
+    const existingIdx = modalSelectedProducts.findIndex(p => p.id === (prod._id || prod.id));
+    if (existingIdx >= 0) {
+      // Increment quantity if already added
+      const updated = [...modalSelectedProducts];
+      updated[existingIdx].quantity += 1;
+      updated[existingIdx].subtotal = updated[existingIdx].amount * updated[existingIdx].quantity;
+      setModalSelectedProducts(updated);
+      toast.success("Product quantity incremented!");
       return;
     }
 
     setModalSelectedProducts([
       ...modalSelectedProducts,
       {
-        id: prod.id,
+        id: prod._id || prod.id,
+        productId: prod._id || prod.id,
         name: prod.name,
         amount: prod.amount,
-        quantity: 1
+        quantity: 1,
+        subtotal: prod.amount
       }
     ]);
     setModalProductSelect("");
   };
 
   const handleQtyChange = (id: string, qty: number) => {
-    setModalSelectedProducts(prev => prev.map(p => p.id === id ? { ...p, quantity: Math.max(1, qty) } : p));
+    setModalSelectedProducts(prev => prev.map(p => p.id === id ? { ...p, quantity: Math.max(1, qty), subtotal: p.amount * Math.max(1, qty) } : p));
   };
 
   const handleRemoveProduct = (id: string) => {
@@ -210,21 +222,35 @@ export default function OrderListPage() {
   const totalAmount = modalSelectedProducts.reduce((sum, p) => sum + p.amount * p.quantity, 0);
 
   // --- EDIT ORDER LOGIC ---
-  const openEdit = (order: Order) => {
+  const openEdit = (order: any) => {
     setActiveOrder(order);
     setPaymentType(order.paymentType === "Prepaid" ? "Prepaid" : "COD");
     setTxnId(order.transactionId || "");
     setCourier(order.courier || "");
     
-    // Simulate parsing existing products (assuming order.product is comma separated)
-    // For a real app, orders should store structured product data. We'll mock it based on products DB.
-    const existingProds = products.filter(p => order.product.includes(p.name));
-    setModalSelectedProducts(existingProds.map(p => ({
-      id: p.id,
-      name: p.name,
-      amount: p.amount,
-      quantity: 1 // Assuming 1 for mock
-    })));
+    // Use structured products array if available from backend
+    const rawProducts: any[] = order._products || [];
+    if (rawProducts.length > 0) {
+      setModalSelectedProducts(rawProducts.map((p: any) => ({
+        id: p.productId?._id || p.productId || p._id || p.id || Math.random().toString(),
+        productId: p.productId?._id || p.productId || p._id || p.id,
+        name: p.productId?.name || p.name || "",
+        amount: p.productId?.amount || p.amount || 0,
+        quantity: p.quantity || 1,
+        subtotal: p.subtotal || ((p.productId?.amount || p.amount || 0) * (p.quantity || 1))
+      })));
+    } else {
+      // Fallback: parse from product name string
+      const existingProds = products.filter(p => order.product.includes(p.name));
+      setModalSelectedProducts(existingProds.map(p => ({
+        id: p._id || p.id,
+        productId: p._id || p.id,
+        name: p.name,
+        amount: p.amount,
+        quantity: 1,
+        subtotal: p.amount
+      })));
+    }
 
     setEditOpen(true);
   };
@@ -311,13 +337,13 @@ export default function OrderListPage() {
     { key: "id", header: "No", render: (_, __, i) => i + 1, sortable: false },
     { key: "name", header: "Lead Name", render: (val) => <span className="uppercase font-semibold text-[11px]">{val}</span> },
     { key: "product", header: "Product Name" },
-    { key: "grandTotal", header: "Grand Total", render: (val) => `₹${val.toLocaleString("en-IN")}` },
+    { key: "grandTotal", header: "Grand Total", render: (val) => `₹${(Number(val) || 0).toLocaleString("en-IN")}` },
     { key: "phone_number", header: "Phone Number" },
     { key: "date", header: "Date" },
-    { key: "paymentType", header: "Payment Type" },
+    { key: "paymentType", header: "Payment Type", render: (val) => val || "COD" },
     { key: "courier", header: "Courier" },
     { key: "assginTo", header: "Assign To" },
-    { key: "transactionId", header: "Transaction ID" },
+    { key: "transactionId", header: "Transaction ID", render: (val) => val || "-" },
     { key: "status", header: "Return Type", render: (val) => val === "Returned" ? val : "-" },
     { key: "repartOrderTotal", header: "Repart Order Total", render: (_, __, i) => i + 1 }, // Mock calculation
     {
@@ -424,7 +450,7 @@ export default function OrderListPage() {
               onChange={(e) => setModalProductSelect(e.target.value)}
               options={[
                 { value: "", label: "Select a Product" },
-                ...products.map(p => ({ value: p.name, label: p.name }))
+                ...products.map(p => ({ value: p._id || p.id, label: `${p.name} (₹${p.amount})` }))
               ]}
             />
           </div>
@@ -571,7 +597,8 @@ export default function OrderListPage() {
                     courier: o.courier || "",
                     assginTo: o.assginTo?.name || o.assginTo || "",
                     transactionId: o.transactionId || "",
-                    status: o.status || "Dispatched"
+                    status: o.status || "Dispatched",
+                    _products: o.products || []
                   }));
                   setOrders(mapped);
               });
