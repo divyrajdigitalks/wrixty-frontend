@@ -21,9 +21,9 @@ export const Button: React.FC<ButtonProps> = ({
   const baseClasses = "inline-flex items-center justify-center font-bold rounded-lg transition-all outline-none focus:ring-2 focus:ring-offset-1 ";
   
   const sizeClasses = {
-    sm: "py-1.5 px-3 text-xs font-semibold",
-    md: "py-2.5 px-5 text-xs font-semibold tracking-wide",
-    lg: "py-3.5 px-7 text-sm font-semibold tracking-wider",
+    sm: "py-1.5 px-3 text-sm font-semibold",
+    md: "py-2.5 px-5 text-sm font-semibold tracking-wide",
+    lg: "py-3.5 px-7 text-base font-semibold tracking-wider",
   };
 
   const variantClasses = {

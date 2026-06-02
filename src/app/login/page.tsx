@@ -60,7 +60,7 @@ export default function LoginPage() {
             <h1 className="text-2xl font-black tracking-widest text-gradient-primary uppercase">
               CRM
             </h1>
-            <p className="text-xs text-text-secondary font-semibold tracking-wider uppercase">
+            <p className="text-sm text-text-secondary font-semibold tracking-wider uppercase">
               Sign In to Your Account
             </p>
           </div>
@@ -90,7 +90,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => router.push("/forgot-password")}
-                  className="text-xs font-bold text-primary-teal hover:text-teal-400 transition-colors cursor-pointer"
+                  className="text-sm font-bold text-primary-teal hover:text-teal-400 transition-colors cursor-pointer"
                 >
                   Forgot Password?
                 </button>

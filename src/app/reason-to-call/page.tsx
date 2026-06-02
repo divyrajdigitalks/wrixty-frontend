@@ -11,7 +11,7 @@ import {
 } from "../../services/reasonToCallService";
 import { exportCopy, exportExcel, exportCSV, exportPDF } from "../../utils/exportUtils";
 import { Table, Column } from "../../components/common/Table";
-import { Delete, Edit } from "@mui/icons-material";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { Modal } from "../../components/common/Modal";
 import { Input } from "../../components/common/Input";
 import { Button } from "../../components/common/Button";
@@ -163,13 +163,13 @@ export default function ReasonToCallPage() {
       render: (_, row) => (
         <div className="flex items-center gap-1.5">
           {hasPermission("Reason-to-call-edit") && (
-            <button onClick={() => openEdit(row)} className="p-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded transition-all shadow-sm" title="Edit Reason">
-              <Edit className="w-3.5 h-3.5" />
+            <button onClick={() => openEdit(row)} className="p-1.5 bg-primary-teal hover:bg-primary-teal text-white rounded-lg transition-all shadow-sm" title="Edit Reason">
+              <FiEdit className="w-3.5 h-3.5" />
             </button>
           )}
           {hasPermission("Reason-to-call-delete") && (
-            <button onClick={() => handleDelete(row)} className="p-1.5 bg-rose-500 hover:bg-rose-400 text-white rounded transition-all shadow-sm" title="Delete Reason">
-              <Delete className="w-3.5 h-3.5" />
+            <button onClick={() => handleDelete(row)} className="p-1.5 bg-rose-500 hover:bg-rose-400 text-white rounded-lg transition-all shadow-sm" title="Delete Reason">
+              <FiTrash2 className="w-3.5 h-3.5" />
             </button>
           )}
         </div>

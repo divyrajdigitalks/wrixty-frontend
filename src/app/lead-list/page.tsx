@@ -37,7 +37,7 @@ import { Modal } from "../../components/common/Modal";
 import { Input } from "../../components/common/Input";
 import { Select } from "../../components/common/Select";
 import { Button } from "../../components/common/Button";
-import { Add, SwapHoriz, Assignment, Delete } from "@mui/icons-material";
+import { Add, SwapHoriz, Assignment } from "@mui/icons-material";
 import { FiEdit, FiTrash2, FiFileText } from "react-icons/fi";
 import { LeadFormModal } from "../../components/leads/LeadFormModal";
 
@@ -87,7 +87,19 @@ export default function LeadListPage() {
         subtotal: (l.amount || 0),
         assgin: l.assgin?.name || l.assgin || "",
         assginId: l.assgin?._id || l.assgin || "",
-        date: l.createdAt ? new Date(l.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        date: l.createdAt ? (() => {
+          const d = new Date(l.createdAt);
+          const day = String(d.getDate()).padStart(2, '0');
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const year = String(d.getFullYear()).slice(-2);
+          return `${day}/${month}/${year}`;
+        })() : (() => {
+          const d = new Date();
+          const day = String(d.getDate()).padStart(2, '0');
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const year = String(d.getFullYear()).slice(-2);
+          return `${day}/${month}/${year}`;
+        })(),
         time: l.createdAt ? new Date(l.createdAt).toTimeString().split(' ')[0].substring(0, 5) : "",
         status: l.status?.name || l.status || "Open",
         statusId: l.status?._id || l.status || "",
@@ -419,19 +431,19 @@ export default function LeadListPage() {
           {hasPermission("Lead-edit") && (
             <button
               onClick={() => openEditModal(row)}
-              className="p-2 text-text-secondary hover:text-primary-teal hover:bg-primary-teal/5 rounded-lg transition-all inline-flex items-center justify-center"
+              className="p-1.5 bg-primary-teal hover:bg-primary-teal text-white rounded-lg transition-all shadow-sm"
               title="Edit Lead"
             >
-              <FiEdit className="w-4.5 h-4.5" />
+              <FiEdit className="w-3.5 h-3.5" />
             </button>
           )}
           {hasPermission("Lead-delete") && (
             <button
               onClick={() => deleteLead(row.id)}
-              className="p-2 text-text-secondary hover:text-error hover:bg-error/5 rounded-lg transition-all inline-flex items-center justify-center"
+              className="p-1.5 bg-rose-500 hover:bg-rose-400 text-white rounded-lg transition-all shadow-sm"
               title="Delete Lead"
             >
-              <FiTrash2 className="w-4.5 h-4.5" />
+              <FiTrash2 className="w-3.5 h-3.5" />
             </button>
           )}
         </div>

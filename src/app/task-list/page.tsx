@@ -50,17 +50,17 @@ export default function TaskListPage() {
       header: "Action",
       sortable: false,
       render: (_, row) => (
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={() => handleDelete(row.id)}
             disabled={isDeleting === row.id}
-            className="p-2 text-text-secondary hover:text-error hover:bg-error/5 rounded-lg transition-all inline-flex items-center justify-center disabled:opacity-50"
+            className="p-1.5 bg-rose-500 hover:bg-rose-400 text-white rounded-lg transition-all shadow-sm disabled:opacity-50"
             title="Delete Record"
           >
             {isDeleting === row.id ? (
-              <div className="w-4.5 h-4.5 border-2 border-error border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
             ) : (
-              <FiTrash2 className="w-4.5 h-4.5" />
+              <FiTrash2 className="w-3.5 h-3.5" />
             )}
           </button>
         </div>

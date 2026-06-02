@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Table, Column } from "../../components/common/Table";
-import { Delete, Visibility, Close } from "@mui/icons-material";
+import { FiEdit, FiTrash2, FiEye } from "react-icons/fi";
 import { useToast } from "../../context/ToastContext";
 import { Button } from "../../components/common/Button";
 import { Select } from "../../components/common/Select";
@@ -59,8 +59,20 @@ export default function ReturnOrderPage() {
         customerName: r.customerName,
         phone_number: r.phone_number,
         assginTo: r.assginTo?.name || r.assginTo || "",
-        orderDate: r.orderId?.createdAt ? new Date(r.orderId.createdAt).toISOString().split('T')[0] : "-",
-        returnDate: r.createdAt ? new Date(r.createdAt).toISOString().split('T')[0] : "",
+        orderDate: r.orderId?.createdAt ? (() => {
+          const d = new Date(r.orderId.createdAt);
+          const day = String(d.getDate()).padStart(2, '0');
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const year = String(d.getFullYear()).slice(-2);
+          return `${day}/${month}/${year}`;
+        })() : "-",
+        returnDate: r.createdAt ? (() => {
+          const d = new Date(r.createdAt);
+          const day = String(d.getDate()).padStart(2, '0');
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const year = String(d.getFullYear()).slice(-2);
+          return `${day}/${month}/${year}`;
+        })() : "",
         product: r.products?.map((p: any) => p.name).join(", ") || "",
         amount: r.amount || 0,
         quantity: r.products?.reduce((acc: number, curr: any) => acc + curr.quantity, 0) || 0,
@@ -139,6 +151,7 @@ export default function ReturnOrderPage() {
 
   const handleSubmitReturnOrder = async () => {
     if(!customer || selectedProducts.length === 0) return toast.error("Please fill customer and add products");
+    if (phone.length !== 10) return toast.error("Phone number must be exactly 10 digits!");
     try {
       await createReturnOrderApi({
         customerName: customer,
@@ -186,23 +199,27 @@ export default function ReturnOrderPage() {
       sortable: false,
       render: (_, row) => (
         <div className="flex items-center gap-1.5">
+          {hasPermission("Return-order-edit") && (
+            <button
+              onClick={() => handleOpenView(row)}
+              className="p-1.5 bg-primary-teal hover:bg-primary-teal text-white rounded-lg transition-all shadow-sm"
+              title="Edit Return Order"
+            >
+              <FiEdit className="w-3.5 h-3.5" />
+            </button>
+          )}
           <button
-            onClick={() => handleOpenView(row)}
-            className="p-1.5 bg-green-600 hover:bg-green-500 text-white rounded-lg transition-all shadow-sm"
-            title="View Details"
-          >
-            <Visibility className="w-3.5 h-3.5" />
-          </button>
-          <Button
-            variant="danger"
-            size="sm"
-            className="p-1.5"
             onClick={() => handleDelete(row.id)}
-            isLoading={isDeleting === row.id}
+            disabled={isDeleting === row.id}
+            className="p-1.5 bg-rose-500 hover:bg-rose-400 text-white rounded-lg transition-all shadow-sm disabled:opacity-50"
             title="Delete Return Order"
           >
-            {isDeleting !== row.id && <Delete className="w-3.5 h-3.5" />}
-          </Button>
+            {isDeleting === row.id ? (
+              <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <FiTrash2 className="w-3.5 h-3.5" />
+            )}
+          </button>
         </div>
       )
     }

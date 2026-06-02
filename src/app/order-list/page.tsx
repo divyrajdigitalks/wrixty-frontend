@@ -73,7 +73,13 @@ export default function OrderListPage() {
         quantity: o.quantity || 1,
         subtotal: o.amount || 0,
         grandTotal: o.grandTotal || o.amount || 0,
-        date: o.createdAt ? new Date(o.createdAt).toISOString().split('T')[0] : "",
+        date: o.createdAt ? (() => {
+          const d = new Date(o.createdAt);
+          const day = String(d.getDate()).padStart(2, '0');
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const year = String(d.getFullYear()).slice(-2);
+          return `${day}/${month}/${year}`;
+        })() : "",
         paymentType: o.paymentType || "COD",
         courier: o.courier || "",
         assginTo: o.assginTo?.name || o.assginTo || "",
@@ -323,28 +329,28 @@ export default function OrderListPage() {
           {hasPermission("Order-edit") && (
             <button
               onClick={() => openEdit(row)}
-              className="p-2 text-text-secondary hover:text-primary-teal hover:bg-primary-teal/5 rounded-lg transition-all inline-flex items-center justify-center"
+              className="p-1.5 bg-primary-teal hover:bg-primary-teal text-white rounded-lg transition-all shadow-sm"
               title="Edit Order"
             >
-              <FiEdit className="w-4.5 h-4.5" />
+              <FiEdit className="w-3.5 h-3.5" />
             </button>
           )}
           {hasPermission("Order-delete") && (
             <button
               onClick={() => handleDelete(row.id)}
-              className="p-2 text-text-secondary hover:text-error hover:bg-error/5 rounded-lg transition-all inline-flex items-center justify-center"
+              className="p-1.5 bg-rose-500 hover:bg-rose-400 text-white rounded-lg transition-all shadow-sm"
               title="Delete Order"
             >
-              <FiTrash2 className="w-4.5 h-4.5" />
+              <FiTrash2 className="w-3.5 h-3.5" />
             </button>
           )}
           {hasPermission("Repart-order") && (
             <button
               onClick={() => openRepeat(row)}
-              className="p-2 text-text-secondary hover:text-success hover:bg-success/5 rounded-lg transition-all inline-flex items-center justify-center"
+              className="p-1.5 bg-green-500 hover:bg-green-400 text-white rounded-lg transition-all shadow-sm"
               title="Repeat Order"
             >
-              <FiRefreshCcw className="w-4.5 h-4.5" />
+              <FiRefreshCcw className="w-3.5 h-3.5" />
             </button>
           )}
         </div>

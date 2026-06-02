@@ -44,7 +44,13 @@ export default function ReminderListPage() {
         title: l.note || `Reminder for ${l.name}`,
         name: l.name,
         phone_number: l.phone_number,
-        reminderDate: l.reminder,
+        reminderDate: l.reminder ? (() => {
+          const d = new Date(l.reminder);
+          const day = String(d.getDate()).padStart(2, '0');
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const year = String(d.getFullYear()).slice(-2);
+          return `${day}/${month}/${year}`;
+        })() : "N/A",
         product: l.products?.map((p: any) => p.name).join(", ") || l.product || "Unknown Product",
         amount: l.amount || 0,
         quantity: l.quantity || 1,
@@ -108,13 +114,13 @@ export default function ReminderListPage() {
             <button
               onClick={() => handleDelete(row.id)}
               disabled={isDeleting === row.id}
-              className="p-2 text-text-secondary hover:text-error hover:bg-error/5 rounded-lg transition-all inline-flex items-center justify-center disabled:opacity-50"
+              className="p-1.5 bg-rose-500 hover:bg-rose-400 text-white rounded-lg transition-all shadow-sm disabled:opacity-50"
               title="Delete Reminder"
             >
               {isDeleting === row.id ? (
-                <div className="w-4.5 h-4.5 border-2 border-error border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               ) : (
-                <FiTrash2 className="w-4.5 h-4.5" />
+                <FiTrash2 className="w-3.5 h-3.5" />
               )}
             </button>
           )}

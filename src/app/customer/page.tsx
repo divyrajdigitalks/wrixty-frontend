@@ -8,7 +8,8 @@ import {
   Customer,
 } from "../../services/customerService";
 import { Table, Column } from "../../components/common/Table";
-import { Delete, Edit, Person } from "@mui/icons-material";
+import { Person } from "@mui/icons-material";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { Modal } from "../../components/common/Modal";
 import { Input } from "../../components/common/Input";
 import { Button } from "../../components/common/Button";
@@ -49,7 +50,11 @@ export default function CustomerPage() {
   const validate = () => {
     const errors: { name?: string, phone?: string } = {};
     if (!name.trim()) errors.name = "Name is required";
-    if (!phone.trim()) errors.phone = "Phone is required";
+    if (!phone.trim()) {
+      errors.phone = "Phone is required";
+    } else if (phone.length !== 10) {
+      errors.phone = "Phone number must be exactly 10 digits";
+    }
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -57,7 +62,7 @@ export default function CustomerPage() {
   const openEdit = (customer: Customer) => {
     setActiveCustomer(customer);
     setName(customer.name);
-    setPhone(customer.phone_number);
+    setPhone(customer.phone_number.replace(/\D/g, "").slice(0, 10));
     setFormErrors({});
     setEditOpen(true);
   };
@@ -115,10 +120,10 @@ export default function CustomerPage() {
       render: (_, row) => (
         <div className="flex items-center gap-1.5">
           <button onClick={() => openEdit(row)} className="p-1.5 bg-primary-teal hover:bg-primary-teal text-white rounded-lg transition-all shadow-sm" title="Edit Customer">
-            <Edit className="w-3.5 h-3.5" />
+            <FiEdit className="w-3.5 h-3.5" />
           </button>
           <button onClick={() => handleDelete(row._id)} className="p-1.5 bg-rose-500 hover:bg-rose-400 text-white rounded-lg transition-all shadow-sm" title="Delete Customer">
-            <Delete className="w-3.5 h-3.5" />
+            <FiTrash2 className="w-3.5 h-3.5" />
           </button>
         </div>
       )
@@ -154,7 +159,18 @@ export default function CustomerPage() {
             {formErrors.name && <p className="text-rose-500 text-[11px] mt-1">{formErrors.name}</p>}
           </div>
           <div>
-            <Input label="Phone Number" type="number" value={phone} onChange={(e) => { setPhone(e.target.value); setFormErrors(p => ({ ...p, phone: undefined })); }} />
+            <Input 
+              label="Phone Number" 
+              type="text" 
+              value={phone} 
+              onChange={(e) => { 
+                const val = e.target.value.replace(/\D/g, "");
+                if (val.length <= 10) {
+                  setPhone(val); 
+                  setFormErrors(p => ({ ...p, phone: undefined })); 
+                }
+              }} 
+            />
             {formErrors.phone && <p className="text-rose-500 text-[11px] mt-1">{formErrors.phone}</p>}
           </div>
           <div className="flex justify-end pt-2">

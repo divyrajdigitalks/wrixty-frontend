@@ -10,8 +10,8 @@ import {
   Product,
 } from "../../services/productService";
 import { exportCopy, exportExcel, exportCSV, exportPDF } from "../../utils/exportUtils";
-import { Table, Column } from "../../components/common/Table";
-import { Delete, Edit, Inventory, Label, Add } from "@mui/icons-material";
+  import { Table, Column } from "../../components/common/Table";
+import { FiEdit, FiTrash2, FiPackage } from "react-icons/fi";
 import { Modal } from "../../components/common/Modal";
 import { Input } from "../../components/common/Input";
 import { Button } from "../../components/common/Button";
@@ -183,7 +183,7 @@ export default function ProductPage() {
       header: "Product Name",
       render: (val) => (
         <div className="flex items-center gap-2">
-          <Inventory className="text-primary-teal w-4 h-4" />
+          <FiPackage className="text-primary-teal w-4 h-4" />
           <span className="font-semibold">{val}</span>
         </div>
       )
@@ -199,12 +199,12 @@ export default function ProductPage() {
         <div className="flex items-center gap-1.5">
           {hasPermission("Product-edit") && (
             <button onClick={() => openEdit(row)} className="p-1.5 bg-primary-teal hover:bg-primary-teal text-white rounded-lg transition-all shadow-sm" title="Edit Product">
-              <Edit className="w-3.5 h-3.5" />
+              <FiEdit className="w-3.5 h-3.5" />
             </button>
           )}
           {hasPermission("Product-delete") && (
             <button onClick={() => handleDelete(row)} className="p-1.5 bg-rose-500 hover:bg-rose-400 text-white rounded-lg transition-all shadow-sm" title="Delete Product">
-              <Delete className="w-3.5 h-3.5" />
+              <FiTrash2 className="w-3.5 h-3.5" />
             </button>
           )}
         </div>

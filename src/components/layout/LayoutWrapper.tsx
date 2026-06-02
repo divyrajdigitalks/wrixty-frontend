@@ -136,7 +136,7 @@ export const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ childre
         key={path}
         href={path}
         onClick={() => setSidebarOpen(false)}
-        className={`flex items-center gap-3.5 px-4 py-2.5 rounded-lg text-[13px] font-medium capitalize tracking-wide transition-all duration-205 ${
+        className={`flex items-center gap-3.5 px-4 py-2.5 rounded-lg text-sm font-medium capitalize tracking-wide transition-all duration-205 ${
           active
             ? "bg-gradient-primary text-white shadow-md font-semibold"
             : "text-text-secondary hover:bg-background hover:text-text-primary"
@@ -155,7 +155,7 @@ export const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ childre
         key={path}
         href={path}
         onClick={() => setSidebarOpen(false)}
-        className={`flex items-center px-4 py-1.5 rounded-lg text-[13px] font-semibold transition-all duration-200 ${
+        className={`flex items-center px-4 py-1.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
           active
             ? "text-primary-teal font-bold bg-primary-teal/5"
             : "text-text-secondary hover:text-text-primary"
@@ -198,7 +198,7 @@ export const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ childre
                 <div className="space-y-1 text-left">
                   <button
                     onClick={() => setTeamOpen(!teamOpen)}
-                    className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-[13px] font-medium capitalize tracking-wide text-text-secondary hover:bg-background transition-all duration-200"
+                    className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-medium capitalize tracking-wide text-text-secondary hover:bg-background transition-all duration-200"
                   >
                     <div className="flex items-center gap-3.5">
                       <Groups className="w-4.5 h-4.5" />
@@ -221,7 +221,7 @@ export const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ childre
                 <div className="space-y-1 text-left">
                   <button
                     onClick={() => setMasterOpen(!masterOpen)}
-                    className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-[13px] font-medium capitalize tracking-wide text-text-secondary hover:bg-background transition-all duration-200"
+                    className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-medium capitalize tracking-wide text-text-secondary hover:bg-background transition-all duration-200"
                   >
                     <div className="flex items-center gap-3.5">
                       <Security className="w-4.5 h-4.5" />
@@ -246,10 +246,10 @@ export const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ childre
             <div className="p-4 border-t border-border-ui shrink-0">
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-xs font-bold uppercase tracking-wider text-error hover:bg-error/5 transition-all border border-error/20"
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-bold uppercase tracking-wider text-error hover:bg-error/5 transition-all border border-error/20"
               >
                 <Logout className="w-4 h-4" />
-                Sign Out
+                <span>Log Out</span>
               </button>
             </div>
           </aside>

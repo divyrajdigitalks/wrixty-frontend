@@ -6,7 +6,7 @@ import { useToast } from "../../context/ToastContext";
 import { Input } from "../../components/common/Input";
 import { Select } from "../../components/common/Select";
 import { Button } from "../../components/common/Button";
-import { Delete, ArrowBack } from "@mui/icons-material";
+import { FiTrash2, FiArrowLeft } from "react-icons/fi";
 import { fetchUsers } from "../../services/userService";
 import { fetchProducts } from "../../services/productService";
 import { fetchStatuses } from "../../services/statusService";
@@ -118,6 +118,10 @@ export default function AddLeadPage() {
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (phone.length !== 10) {
+      toast.warning("Phone number must be exactly 10 digits!");
+      return;
+    }
     if (modalSelectedProducts.length === 0) {
       toast.warning("Please add at least one product!");
       return;
@@ -199,7 +203,7 @@ export default function AddLeadPage() {
             onClick={() => router.push("/lead-list")}
             className="p-1.5 rounded-lg hover:bg-zinc-100  text-zinc-500 transition-colors"
           >
-            <ArrowBack className="w-5 h-5" />
+            <FiArrowLeft className="w-5 h-5" />
           </button>
           <div>
             <h2 className="text-xl font-bold text-zinc-800 ">
@@ -213,7 +217,15 @@ export default function AddLeadPage() {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Input label="Name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Enter Name" />
-            <Input label="Phone Number" type="number" value={phone} onChange={(e) => setPhone(e.target.value)} required placeholder="Enter Phone Number" />
+            <Input
+              label="Phone Number"
+              type="text"
+              isMobile
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="10-digit number"
+              required
+            />
             <Select
               label="Reason Call"
               value={statusTwo}
@@ -339,9 +351,10 @@ export default function AddLeadPage() {
                           <button
                             type="button"
                             onClick={() => handleRemoveProduct(row.productId)}
-                            className="p-1 hover:bg-red-50 text-red-500 hover:text-red-600 rounded-lg transition-colors"
+                            className="p-1.5 bg-rose-500 hover:bg-rose-400 text-white rounded-lg transition-all shadow-sm"
+                            title="Remove Product"
                           >
-                            <Delete className="w-4 h-4" />
+                            <FiTrash2 className="w-3.5 h-3.5" />
                           </button>
                         </td>
                       </tr>

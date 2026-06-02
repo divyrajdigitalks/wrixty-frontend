@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { Table, Column } from "../../components/common/Table";
-import { Delete, Add, Edit } from "@mui/icons-material";
+import { FiEdit, FiTrash2, FiPlus } from "react-icons/fi";
 import { Modal } from "../../components/common/Modal";
 import { Input } from "../../components/common/Input";
 import {
@@ -118,7 +118,7 @@ export default function CourierListPage() {
               className="p-1.5 bg-primary-teal hover:bg-primary-teal text-white rounded-lg transition-all shadow-sm"
               title="Edit"
             >
-              <Edit className="w-3.5 h-3.5" />
+              <FiEdit className="w-3.5 h-3.5" />
             </button>
           )}
           {hasPermission("Currier-delete") && (
@@ -127,7 +127,7 @@ export default function CourierListPage() {
               className="p-1.5 bg-rose-500 hover:bg-rose-400 text-white rounded-lg transition-all shadow-sm"
               title="Delete"
             >
-              <Delete className="w-3.5 h-3.5" />
+              <FiTrash2 className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
@@ -156,7 +156,7 @@ export default function CourierListPage() {
             }}
             className="flex items-center gap-1 py-1.5 px-3.5 bg-primary-teal hover:bg-primary-teal text-white text-xs font-bold uppercase tracking-wider rounded-lg shadow-sm transition-all"
           >
-            <Add className="w-4 h-4" /> Add Courier
+            <FiPlus className="w-4 h-4" /> Add Courier
           </button>
         )}
       </div>
@@ -189,12 +189,15 @@ export default function CourierListPage() {
             <Input label="Courier Name" value={name} onChange={(e) => { setName(e.target.value); setFormErrors(p => ({ ...p, name: undefined })); }} required placeholder="e.g. FedEx India" />
             {formErrors.name && <p className="text-rose-500 text-[11px] mt-1">{formErrors.name}</p>}
           </div>
-          <button
-            type="submit"
-            className="w-full py-2.5 bg-primary-teal hover:bg-primary-teal text-white font-bold uppercase tracking-wider text-xs rounded-lg shadow transition-all"
-          >
-            Register Courier
-          </button>
+          <div className="pt-2">
+            <Button
+              type="submit"
+              variant="primary"
+              className="w-full"
+            >
+              Register Courier
+            </Button>
+          </div>
         </form>
       </Modal>
 
@@ -205,12 +208,15 @@ export default function CourierListPage() {
             <Input label="Courier Name" value={name} onChange={(e) => { setName(e.target.value); setFormErrors(p => ({ ...p, name: undefined })); }} required />
             {formErrors.name && <p className="text-rose-500 text-[11px] mt-1">{formErrors.name}</p>}
           </div>
-          <button
-            type="submit"
-            className="w-full py-2.5 bg-primary-teal hover:bg-primary-teal text-white font-bold uppercase tracking-wider text-xs rounded-lg shadow transition-all"
-          >
-            Save Changes
-          </button>
+          <div className="pt-2">
+            <Button
+              type="submit"
+              variant="primary"
+              className="w-full"
+            >
+              Save Changes
+            </Button>
+          </div>
         </form>
       </Modal>
     </div>

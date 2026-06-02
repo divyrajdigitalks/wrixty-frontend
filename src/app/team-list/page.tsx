@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { Table, Column } from "../../components/common/Table";
-import { Delete, Add, Edit } from "@mui/icons-material";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { Modal } from "../../components/common/Modal";
 import { Input } from "../../components/common/Input";
 import { Select } from "../../components/common/Select";
@@ -185,10 +185,10 @@ export default function TeamListPage() {
           {hasPermission("Team-edit") && (
             <button
               onClick={() => openEdit(row)}
-              className="p-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-all shadow-sm"
+              className="p-1.5 bg-primary-teal hover:bg-primary-teal text-white rounded-lg transition-all shadow-sm"
               title="Edit Team"
             >
-              <Edit className="w-3.5 h-3.5" />
+              <FiEdit className="w-3.5 h-3.5" />
             </button>
           )}
           {hasPermission("Team-delete") && (
@@ -197,7 +197,7 @@ export default function TeamListPage() {
               className="p-1.5 bg-rose-500 hover:bg-rose-400 text-white rounded-lg transition-all shadow-sm"
               title="Delete Team"
             >
-              <Delete className="w-3.5 h-3.5" />
+              <FiTrash2 className="w-3.5 h-3.5" />
             </button>
           )}
         </div>

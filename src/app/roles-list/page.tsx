@@ -2,15 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { Table, Column } from "../../components/common/Table";
-import {
-  AdminPanelSettings,
-  Person,
-  SupervisorAccount,
-  CheckCircle,
-  RadioButtonUnchecked,
-  Delete,
-  Edit
-} from "@mui/icons-material";
+import { FiEdit, FiTrash2, FiUser, FiShield, FiUserCheck } from "react-icons/fi";
 import {
   fetchRoles,
   createRole,
@@ -207,9 +199,9 @@ export default function RolesListPage() {
       header: "Role Name",
       render: (val) => (
         <div className="flex items-center gap-2">
-          {val === "Superadmin" ? <AdminPanelSettings className="text-primary-teal w-4 h-4" /> :
-            val === "Manager" ? <SupervisorAccount className="text-primary-teal w-4 h-4" /> :
-              <Person className="text-primary-teal w-4 h-4" />}
+          {val === "Superadmin" ? <FiShield className="text-primary-teal w-4 h-4" /> :
+            val === "Manager" ? <FiUserCheck className="text-primary-teal w-4 h-4" /> :
+              <FiUser className="text-primary-teal w-4 h-4" />}
           <span className="font-bold uppercase tracking-wide">{val}</span>
         </div>
       )
@@ -223,10 +215,10 @@ export default function RolesListPage() {
           {hasPermission("Roles-edit") && (
             <button
               onClick={() => openEdit(row)}
-              className="p-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-all shadow-sm"
+              className="p-1.5 bg-primary-teal hover:bg-primary-teal text-white rounded-lg transition-all shadow-sm"
               title="Edit Role"
             >
-              <Edit className="w-3.5 h-3.5" />
+              <FiEdit className="w-3.5 h-3.5" />
             </button>
           )}
           {hasPermission("Roles-delete") && (
@@ -235,7 +227,7 @@ export default function RolesListPage() {
               className="p-1.5 bg-rose-500 hover:bg-rose-400 text-white rounded-lg transition-all shadow-sm"
               title="Delete Role"
             >
-              <Delete className="w-3.5 h-3.5" />
+              <FiTrash2 className="w-3.5 h-3.5" />
             </button>
           )}
         </div>

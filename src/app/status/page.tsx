@@ -11,7 +11,7 @@ import {
 } from "../../services/statusService";
 import { exportCopy, exportExcel, exportCSV, exportPDF } from "../../utils/exportUtils";
 import { Table, Column } from "../../components/common/Table";
-import { Delete, Edit, Label, Add } from "@mui/icons-material";
+import { FiEdit, FiTrash2, FiTag } from "react-icons/fi";
 import { Modal } from "../../components/common/Modal";
 import { Input } from "../../components/common/Input";
 import { Button } from "../../components/common/Button";
@@ -156,7 +156,7 @@ export default function StatusPage() {
       header: "Name",
       render: (val) => (
         <div className="flex items-center gap-2">
-          <Label className="text-primary-teal w-4 h-4" />
+          <FiTag className="text-primary-teal w-4 h-4" />
           <span className="font-semibold">{val}</span>
         </div>
       )
@@ -176,12 +176,12 @@ export default function StatusPage() {
         <div className="flex items-center gap-1.5">
           {hasPermission("Status-edit") && (
             <button onClick={() => openEdit(row)} className="p-1.5 bg-primary-teal hover:bg-primary-teal text-white rounded-lg transition-all shadow-sm" title="Edit Status">
-              <Edit className="w-3.5 h-3.5" />
+              <FiEdit className="w-3.5 h-3.5" />
             </button>
           )}
           {hasPermission("Status-delete") && (
             <button onClick={() => handleDelete(row._id)} className="p-1.5 bg-rose-500 hover:bg-rose-400 text-white rounded-lg transition-all shadow-sm" title="Delete Status">
-              <Delete className="w-3.5 h-3.5" />
+              <FiTrash2 className="w-3.5 h-3.5" />
             </button>
           )}
         </div>

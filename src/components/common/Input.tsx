@@ -7,6 +7,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
   helperText?: string;
   isLoading?: boolean;
+  isMobile?: boolean;
 }
 
 export const Input: React.FC<InputProps> = ({
@@ -14,10 +15,12 @@ export const Input: React.FC<InputProps> = ({
   error,
   helperText,
   isLoading = false,
+  isMobile = false,
   className = "",
   id,
   type = "text",
   disabled,
+  onChange,
   ...props
 }) => {
   const generatedId = useId();
@@ -28,12 +31,22 @@ export const Input: React.FC<InputProps> = ({
   const isPassword = type === "password";
   const actualType = isPassword ? (showPassword ? "text" : "password") : type;
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isMobile) {
+      const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+      e.target.value = value;
+      if (onChange) onChange(e);
+    } else {
+      if (onChange) onChange(e);
+    }
+  };
+
   return (
     <div className="w-full flex flex-col gap-1.5 text-left">
       {label && (
         <label
           htmlFor={inputId}
-          className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wider flex gap-1"
+          className="text-sm font-semibold text-[var(--muted)] uppercase tracking-wider flex gap-1"
         >
           {label} {props.required && <span className="text-red-500">*</span>}
         </label>
@@ -43,7 +56,7 @@ export const Input: React.FC<InputProps> = ({
           id={inputId}
           type={actualType}
           className={`
-            w-full px-4 py-2.5 text-sm bg-card-bg
+            w-full px-4 py-2.5 text-base bg-card-bg
             border border-border-ui
             text-text-primary
             rounded-lg transition-all duration-200 outline-none
@@ -55,6 +68,8 @@ export const Input: React.FC<InputProps> = ({
             ${className}
           `}
           disabled={isDisabled}
+          onChange={handleChange}
+          maxLength={isMobile ? 10 : props.maxLength}
           {...props}
         />
         {isLoading && (
@@ -74,10 +89,10 @@ export const Input: React.FC<InputProps> = ({
         )}
       </div>
       {error && (
-        <span className="text-xs font-medium text-error">{error}</span>
+        <span className="text-sm font-medium text-error">{error}</span>
       )}
       {!error && helperText && (
-        <span className="text-xs text-[var(--muted)]">{helperText}</span>
+        <span className="text-sm text-[var(--muted)]">{helperText}</span>
       )}
     </div>
   );

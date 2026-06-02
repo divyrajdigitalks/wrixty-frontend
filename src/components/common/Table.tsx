@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { ChevronLeft, ChevronRight, UnfoldMore, FirstPage, LastPage, KeyboardArrowLeft, KeyboardArrowRight, KeyboardArrowDown } from "@mui/icons-material";
+import { ChevronLeft, ChevronRight, FirstPage, LastPage, KeyboardArrowLeft, KeyboardArrowRight, KeyboardArrowDown } from "@mui/icons-material";
 
 export interface Column<T> {
   key: string;
@@ -175,10 +175,10 @@ export function Table<T extends Record<string, any>>({
               placeholder={searchPlaceholder}
               value={internalSearch}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full px-4 py-2 text-xs bg-white border border-border-ui text-text-primary rounded-lg outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal/20"
+              className="w-full px-4 py-2 text-sm bg-white border border-border-ui text-text-primary rounded-lg outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal/20"
             />
           </div>
-          <div className="text-xs text-text-secondary">
+          <div className="text-sm text-text-secondary">
             Showing {paginatedData.length} of {filteredData.length} records
           </div>
         </div>
@@ -203,16 +203,10 @@ export function Table<T extends Record<string, any>>({
                {columns.map((col, colIdx) => (
                 <th
                   key={`${col.key}-${colIdx}`}
-                  onClick={() => col.sortable !== false && handleSort(col.key)}
-                  className={`p-4 text-xs font-semibold tracking-wide text-text-secondary select-none ${
-                    col.sortable !== false ? "cursor-pointer hover:text-text-primary" : ""
-                  }`}
+                  className="p-4 text-sm font-semibold tracking-wide text-text-secondary select-none"
                 >
                   <div className="flex items-center gap-1.5">
                     {col.header}
-                    {col.sortable !== false && !serverSide && (
-                      <UnfoldMore className="w-3.5 h-3.5 opacity-60" />
-                    )}
                   </div>
                 </th>
               ))}
@@ -256,7 +250,7 @@ export function Table<T extends Record<string, any>>({
                       </td>
                     )}
                     {columns.map((col, colIdx) => (
-                      <td key={`${rowId}-${col.key}-${colIdx}`} className="p-4 text-xs text-text-primary">
+                      <td key={`${rowId}-${col.key}-${colIdx}`} className="p-4 text-sm text-text-primary">
                         {col.render ? col.render(row[col.key], row, rowIndex) : String(row[col.key] ?? "")}
                       </td>
                     ))}
@@ -277,13 +271,13 @@ export function Table<T extends Record<string, any>>({
       {/* Pagination Footer */}
       <div className="py-4 px-2 flex flex-col sm:flex-row gap-4 items-center justify-end">
         <div className="flex items-center gap-8">
-          <div className="flex items-center gap-3 text-[13px] text-text-secondary">
+          <div className="flex items-center gap-3 text-sm text-text-secondary">
             <span>Page Size:</span>
             <div className="relative">
               <select
                 value={activeLimit}
                 onChange={(e) => handleLimitChange(Number(e.target.value))}
-                className="appearance-none bg-white border border-border-ui px-3 py-1.5 pr-8 rounded text-[13px] font-medium text-text-primary focus:outline-none focus:border-primary-teal transition-colors cursor-pointer"
+                className="appearance-none bg-white border border-border-ui px-3 py-1.5 pr-8 rounded text-sm font-medium text-text-primary focus:outline-none focus:border-primary-teal transition-colors cursor-pointer"
               >
                 {[5, 10, 20, 50].map((v) => (
                   <option key={v} value={v}>{v}</option>
@@ -295,7 +289,7 @@ export function Table<T extends Record<string, any>>({
             </div>
           </div>
 
-          <div className="text-[13px] text-text-secondary font-medium">
+          <div className="text-sm text-text-secondary font-medium">
             {startRecord} to {endRecord} of {total}
           </div>
 

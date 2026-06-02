@@ -3,7 +3,7 @@ import { Modal } from "../common/Modal";
 import { Input } from "../common/Input";
 import { Select } from "../common/Select";
 import { Button } from "../common/Button";
-import { Delete } from "@mui/icons-material";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { createLeadApi, updateLeadApi, fetchLeadById } from "../../services/leadService";
 import { createOrderApi } from "../../services/orderService";
 import { fetchCouriers } from "../../services/courierService";
@@ -56,7 +56,7 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
   const [currentSelectedProductId, setCurrentSelectedProductId] = useState("");
 
   const [paymentType, setPaymentType] = useState<"COD" | "Prepaid">("COD");
-  const [selectedCourier, setSelectedCourier] = useState("Delhivery");
+  const [selectedCourier, setSelectedCourier] = useState("");
   const [transactionId, setTransactionId] = useState("");
   const [couriers, setCouriers] = useState<any[]>([]);
   const [customers, setCustomers] = useState<any[]>([]);
@@ -100,7 +100,7 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
           
           if (isOrder) {
             setPaymentType(fetchedData.paymentType || "COD");
-            setSelectedCourier(fetchedData.courier || "Delhivery");
+            setSelectedCourier(fetchedData.courier || "");
             setTransactionId(fetchedData.transactionId || "");
           }
 
@@ -131,7 +131,7 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
         setReminder("");
         setOrderStatus(false);
         setPaymentType("COD");
-        setSelectedCourier("Delhivery");
+        setSelectedCourier("");
         setTransactionId("");
         setModalSelectedProducts([]);
         
@@ -197,6 +197,14 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
     e.preventDefault();
     if (!name || !phone || !status || !statusTwo || !assignee) {
       toast.warning("Please fill all compulsory fields (Name, Phone, Status, Reason Call, Assign Staff)!");
+      return;
+    }
+    if (phone.length !== 10) {
+      toast.warning("Phone number must be exactly 10 digits!");
+      return;
+    }
+    if (orderStatus && !selectedCourier) {
+      toast.warning("Please select a Courier Partner!");
       return;
     }
     if (modalSelectedProducts.length === 0) {
@@ -265,9 +273,9 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={activeLead ? "Edit Lead Details" : "Add New Lead"} isLoading={isLoading} sizeClass="max-w-5xl">
-      <form onSubmit={handleSubmit} className="space-y-6 text-left max-w-4xl mx-auto max-h-[80vh] overflow-y-auto pr-2 custom-scrollbar">
-        <p className="text-xs text-zinc-500 font-medium">Fill out the details to {activeLead ? 'update the' : 'register a new'} lead in the system.</p>
+    <Modal isOpen={isOpen} onClose={onClose} title={activeLead ? "Edit Lead Details" : "Add New Lead"} isLoading={isLoading} sizeClass="max-w-6xl">
+      <form onSubmit={handleSubmit} className="space-y-5 text-left max-w-5xl mx-auto pr-1">
+        <p className="text-xs text-text-secondary font-medium">Fill out the details to {activeLead ? 'update the' : 'register a new'} lead in the system.</p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
@@ -279,7 +287,8 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
                 setName(selVal);
                 const selected = customers.find(c => c.name === selVal);
                 if (selected && selected.phone_number) {
-                  setPhone(selected.phone_number);
+                  const safePhone = selected.phone_number.replace(/\D/g, "").slice(0, 10);
+                  setPhone(safePhone);
                 }
               }} 
               required
@@ -287,7 +296,21 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
               options={customers.map(c => ({ value: c.name, label: c.name }))}
             />
           </div>
-          <Input label="Phone Number" type="number" value={phone} onChange={(e) => setPhone(e.target.value)} required placeholder="Enter Phone Number" />
+          <div>
+            <Input 
+              label="Phone Number" 
+              type="text" 
+              value={phone} 
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, "");
+                if (val.length <= 10) {
+                  setPhone(val);
+                }
+              }} 
+              required 
+              placeholder="Enter 10-digit Phone Number" 
+            />
+          </div>
           <Select
             label="Reason Call"
             value={statusTwo}
@@ -328,7 +351,7 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-          <label className="flex items-center gap-2 text-xs font-semibold text-zinc-700 cursor-pointer mt-5">
+          <label className="flex items-center gap-2 text-xs font-semibold text-zinc-700 cursor-pointer mt-4">
             <input
               type="checkbox"
               checked={orderStatus}
@@ -341,15 +364,15 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
         </div>
 
         {orderStatus && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-zinc-50 rounded-lg border border-zinc-200 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-gradient-subtle rounded-xl border border-primary-teal/20 items-center shadow-soft">
             <div className="space-y-2">
-              <label className="text-[13px] font-semibold text-zinc-500 uppercase">Payment Type</label>
-              <div className="items-center gap-4">
-                <label className="flex items-center gap-2 text-sm text-zinc-600 cursor-pointer mt-1">
+              <label className="text-[13px] font-bold text-primary-teal uppercase tracking-wide">Payment Type</label>
+              <div className="flex items-center gap-5 mt-1.5">
+                <label className="flex items-center gap-2 text-sm text-text-primary cursor-pointer font-medium">
                   <input type="radio" name="modalPaymentType" value="COD" checked={paymentType === 'COD'} onChange={(e) => setPaymentType(e.target.value as any)} className="w-4 h-4 text-primary-teal" />
                   COD Discount
                 </label>
-                <label className="flex items-center gap-2 text-sm text-zinc-600 cursor-pointer">
+                <label className="flex items-center gap-2 text-sm text-text-primary cursor-pointer font-medium">
                   <input type="radio" name="modalPaymentType" value="Prepaid" checked={paymentType === 'Prepaid'} onChange={(e) => setPaymentType(e.target.value as any)} className="w-4 h-4 text-primary-teal" />
                   Prepaid Discount
                 </label>
@@ -359,7 +382,11 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
               label="Courier Partner"
               value={selectedCourier}
               onChange={(e) => setSelectedCourier(e.target.value)}
-              options={couriers.map(c => ({ value: c.name, label: c.name }))}
+              required
+              options={[
+                { value: "", label: "Select Courier Partner" },
+                ...couriers.map(c => ({ value: c.name, label: c.name }))
+              ]}
             />
             <Input
               label="Transaction ID"
@@ -422,9 +449,10 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
                         <button
                           type="button"
                           onClick={() => handleRemoveProduct(row.productId)}
-                          className="p-1 hover:bg-red-50 text-red-500 hover:text-red-600 rounded-lg transition-colors"
+                          className="p-1.5 bg-rose-500 hover:bg-rose-400 text-white rounded-lg transition-all shadow-sm"
+                          title="Remove Product"
                         >
-                          <Delete className="w-4 h-4" />
+                          <FiTrash2 className="w-3.5 h-3.5" />
                         </button>
                       </td>
                     </tr>

@@ -340,30 +340,33 @@ export default function UsersPage() {
       header: "Action",
       sortable: false,
       render: (_, row) => (
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           {hasPermission("User-edit") && (
             <button
               onClick={() => openEdit(row)}
-              className="p-2 text-text-secondary hover:text-primary-teal hover:bg-primary-teal/5 rounded-lg transition-all inline-flex items-center justify-center"
+              className="p-1.5 bg-primary-teal hover:bg-primary-teal text-white rounded-lg transition-all shadow-sm"
               title="Edit User"
             >
-              <FiEdit className="w-4.5 h-4.5" />
+              <FiEdit className="w-3.5 h-3.5" />
             </button>
           )}
           <button
             onClick={() => handleLoginAs(row)}
-            className="p-2 text-text-secondary hover:text-secondary-cyan hover:bg-secondary-cyan/5 rounded-lg transition-all inline-flex items-center justify-center"
+            className="p-1.5 bg-secondary-cyan hover:bg-secondary-cyan text-white rounded-lg transition-all shadow-sm"
             title="Login As This User"
           >
-            <FiUserCheck className="w-4.5 h-4.5" />
+            <FiUserCheck className="w-3.5 h-3.5" />
           </button>
           {hasPermission("User-delete") && (
             <button
-              onClick={() => handleDelete(row)}
-              className="p-2 text-text-secondary hover:text-error hover:bg-error/5 rounded-lg transition-all inline-flex items-center justify-center"
+              onClick={() => {
+                setUserToDelete(row);
+                setDeleteOpen(true);
+              }}
+              className="p-1.5 bg-rose-500 hover:bg-rose-400 text-white rounded-lg transition-all shadow-sm"
               title="Delete User"
             >
-              <FiTrash2 className="w-4.5 h-4.5" />
+              <FiTrash2 className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
@@ -422,8 +425,15 @@ export default function UsersPage() {
             <div className="space-y-4">
               <Input label="Name" placeholder="Enter Name" value={name} onChange={(e) => setName(e.target.value)} required />
               {formErrors.name && <p className="text-rose-500 text-[11px] mt-0.5">{formErrors.name}</p>}
-              <Input label="Mobile Number" placeholder="Enter 10-Digit Mobile Number" value={mobile} onChange={(e) => handleMobileChange(e.target.value)} />
-              {formErrors.mobile && <p className="text-rose-500 text-[11px] mt-0.5">{formErrors.mobile}</p>}
+              <Input
+                label="Mobile Number"
+                type="text"
+                isMobile
+                placeholder="Enter 10-Digit Mobile Number"
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value)}
+                error={formErrors.mobile}
+              />
               <Input label="Aadhar Card" placeholder="Enter 12-Digit Aadhar Card" value={aadhar} onChange={(e) => handleAadharChange(e.target.value)} />
               {formErrors.aadhar && <p className="text-rose-500 text-[11px] mt-0.5">{formErrors.aadhar}</p>}
               <Input label="Bank Number" placeholder="Enter Bank Number" value={bankNo} onChange={(e) => handleBankChange(e.target.value)} />
@@ -489,8 +499,14 @@ export default function UsersPage() {
             <div className="space-y-4">
               <Input label="Name" value={name} onChange={(e) => setName(e.target.value)} required />
               {formErrors.name && <p className="text-rose-500 text-[11px] mt-0.5">{formErrors.name}</p>}
-              <Input label="Mobile Number" value={mobile} onChange={(e) => handleMobileChange(e.target.value)} />
-              {formErrors.mobile && <p className="text-rose-500 text-[11px] mt-0.5">{formErrors.mobile}</p>}
+              <Input
+                label="Mobile Number"
+                type="text"
+                isMobile
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value)}
+                error={formErrors.mobile}
+              />
               <Input label="Aadhar Card" value={aadhar} onChange={(e) => handleAadharChange(e.target.value)} />
               {formErrors.aadhar && <p className="text-rose-500 text-[11px] mt-0.5">{formErrors.aadhar}</p>}
               <Input label="Bank Number" value={bankNo} onChange={(e) => handleBankChange(e.target.value)} />
