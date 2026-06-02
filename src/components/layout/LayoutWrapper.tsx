@@ -352,10 +352,10 @@ export const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ childre
               </button>
 
               <div className="hidden sm:flex items-center gap-3">
-                <span className="text-xs font-medium text-primary-teal bg-primary-teal/5 px-3 py-1 rounded-full border border-primary-teal/10 shadow-soft transition-all duration-300 hover:-translate-y-0.5 cursor-pointer">
-                  Super Admin Console
-                </span>
-                <span className="text-border-ui">/</span>
+                {/* <span className="text-xs font-medium text-primary-teal bg-primary-teal/5 px-3 py-1 rounded-full border border-primary-teal/10 shadow-soft transition-all duration-300 hover:-translate-y-0.5 cursor-pointer">
+                  Super Admin
+                </span> */}
+                {/* <span className="text-border-ui">/</span> */}
                 <span className="text-xs font-bold text-text-primary transition-all cursor-pointer capitalize">
                   {pathname.split("/").filter(Boolean).pop()?.replace(/-/g, " ") || "Dashboard"}
                 </span>
