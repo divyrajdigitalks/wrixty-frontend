@@ -5,6 +5,7 @@ import { Table, Column } from "../../components/common/Table";
 import { FiEdit, FiTrash2, FiPlus } from "react-icons/fi";
 import { Modal } from "../../components/common/Modal";
 import { Input } from "../../components/common/Input";
+import { Button } from "../../components/common/Button";
 import {
   fetchCouriers,
   createCourier,

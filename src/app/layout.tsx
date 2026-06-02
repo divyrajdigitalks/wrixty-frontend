@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Nunito_Sans } from "next/font/google";
 import "./globals.css";
 import { LayoutWrapper } from "../components/layout/LayoutWrapper";
 import NextTopLoader from "nextjs-toploader";
@@ -7,6 +7,12 @@ import NextTopLoader from "nextjs-toploader";
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+});
+
+const nunitoSans = Nunito_Sans({
+  variable: "--font-nunito",
+  subsets: ["latin"],
+  weight: ["300", "400", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
@@ -22,10 +28,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} h-full antialiased`}
+      className={`${inter.variable} ${nunitoSans.variable} h-full antialiased`}
       data-scroll-behavior="smooth"
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground transition-all duration-300">
+      <body className="min-h-full flex flex-col bg-background text-foreground transition-all duration-300 font-nunito">
         <NextTopLoader
           color="#0F766E"
           initialPosition={0.08}

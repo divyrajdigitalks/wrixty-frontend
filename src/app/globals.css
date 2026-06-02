@@ -29,6 +29,9 @@
   --color-warning: var(--warning);
   --color-error: var(--error);
 
+  --font-nunito: var(--font-nunito), ui-sans-serif, system-ui;
+  --font-inter: var(--font-inter), ui-sans-serif, system-ui;
+
   --radius-xl: var(--radius);
 
   --shadow-soft: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
@@ -54,10 +57,30 @@
 
 body {
   background-color: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-inter), sans-serif;
-  font-size: 1.50rem; /* Significantly increased base font size as requested */
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  color: #1f2f3e;
+  font-family: var(--font-nunito), sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Force Nunito on all inputs and tables */
+input, select, textarea, button, table {
+  font-family: var(--font-nunito), sans-serif !important;
+}
+
+.table-cell-text {
+  font-size: 14px;
+  color: #1f2f3e;
+  font-weight: 600; /* Semi-bold for better visibility */
+}
+
+.text-uppercase {
+  text-transform: uppercase;
+}
+
+.text-tracking-wider {
+  letter-spacing: 0.025em;
 }
 
 /* Custom Sleek Scrollbar Experience */

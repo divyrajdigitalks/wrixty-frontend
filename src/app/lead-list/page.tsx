@@ -375,11 +375,11 @@ export default function LeadListPage() {
 
   const columns: Column<Lead>[] = [
     { key: "id", header: "No", render: (_, __, i) => i + 1, sortable: false },
-    { key: "name", header: "Customer Name", render: (val) => val || "-" },
+    { key: "name", header: "Customer Name", render: (val) => <span className="uppercase">{val || "-"}</span> },
     { key: "phone_number", header: "Phone Number" },
     { key: "product", header: "Product Name" },
     { key: "subtotal", header: "Total", render: (val) => `₹${val}` },
-    { key: "assgin", header: "Assign By" },
+    { key: "assgin", header: "Assign By", render: (val) => <span className="uppercase">{val}</span> },
     { key: "date", header: "Date" },
     {
       key: "status",

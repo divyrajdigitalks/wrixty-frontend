@@ -190,7 +190,7 @@ export function Table<T extends Record<string, any>>({
           <thead>
             <tr className="bg-background/80 border-b border-border-ui">
               {selectable && (
-                <th className="p-4 w-12 text-center">
+                <th className="p-3 w-12 text-center">
                   <input
                     type="checkbox"
                     checked={isAllSelected}
@@ -203,7 +203,7 @@ export function Table<T extends Record<string, any>>({
                {columns.map((col, colIdx) => (
                 <th
                   key={`${col.key}-${colIdx}`}
-                  className="p-4 text-sm font-semibold tracking-wide text-text-secondary select-none"
+                  className="p-3 text-sm font-semibold tracking-wide text-text-secondary select-none"
                 >
                   <div className="flex items-center gap-1.5">
                     {col.header}
@@ -217,12 +217,12 @@ export function Table<T extends Record<string, any>>({
               Array.from({ length: Math.min(activeLimit, 5) }).map((_, rowIndex) => (
                 <tr key={`skeleton-${rowIndex}`} className="animate-pulse bg-zinc-50/20 ">
                   {selectable && (
-                    <td className="p-3.5 text-center">
+                    <td className="p-3 text-center">
                       <div className="w-4 h-4 bg-zinc-200  rounded-lg mx-auto"></div>
                     </td>
                   )}
                   {columns.map((col, colIdx) => (
-                    <td key={`skel-col-${col.key}-${colIdx}`} className="p-3.5">
+                    <td key={`skel-col-${col.key}-${colIdx}`} className="p-3">
                       <div className="h-3 bg-zinc-200  rounded-lg w-3/4 max-w-[120px]"></div>
                     </td>
                   ))}
@@ -240,7 +240,7 @@ export function Table<T extends Record<string, any>>({
                     }`}
                   >
                     {selectable && (
-                      <td className="p-4 text-center">
+                      <td className="p-3 text-center">
                         <input
                           type="checkbox"
                           checked={isSelected}
@@ -250,7 +250,7 @@ export function Table<T extends Record<string, any>>({
                       </td>
                     )}
                     {columns.map((col, colIdx) => (
-                      <td key={`${rowId}-${col.key}-${colIdx}`} className="p-4 text-sm text-text-primary">
+                      <td key={`${rowId}-${col.key}-${colIdx}`} className="p-3 text-[14px] font-semibold text-[#1f2f3e] tracking-wide">
                         {col.render ? col.render(row[col.key], row, rowIndex) : String(row[col.key] ?? "")}
                       </td>
                     ))}
