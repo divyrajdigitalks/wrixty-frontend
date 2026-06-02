@@ -95,10 +95,10 @@ export default function KanbanListPage() {
     <div className="space-y-6">
       {/* Header Panel */}
       <div className="space-y-1">
-        <h2 className="text-xl font-bold text-zinc-900">
+        <h2 className="text-2xl font-bold text-[#1f2f3e]">
           Kanban Board
         </h2>
-        <p className="text-xs text-zinc-500 font-medium tracking-wide">
+        <p className="text-sm text-text-secondary font-medium tracking-wide">
           Quickly advance leads across stages visually via drag & drop
         </p>
       </div>
@@ -114,17 +114,17 @@ export default function KanbanListPage() {
               key={stage.id || stage._id}
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, stage)}
-              className="w-72 shrink-0 bg-white border border-zinc-200 rounded-lg p-4 space-y-4 shadow-sm"
+              className="w-80 shrink-0 bg-white border border-border-ui rounded-lg p-4 space-y-4 shadow-sm"
             >
               {/* Header */}
-              <div className="flex items-center justify-between border-b border-zinc-100 pb-2">
+              <div className="flex items-center justify-between border-b border-border-ui pb-2">
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: stageColor }} />
-                  <h4 className="text-xs font-semibold text-zinc-700">
+                  <span className="w-3 h-3 rounded-full" style={{ backgroundColor: stageColor }} />
+                  <h4 className="text-sm font-bold text-[#1f2f3e] uppercase tracking-wide">
                     {stage.name}
                   </h4>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 bg-zinc-50 text-zinc-500 rounded-lg border border-zinc-200">
+                <span className="text-xs font-bold px-2.5 py-1 bg-background text-[#1f2f3e] rounded-lg border border-border-ui">
                   {stageLeads.length}
                 </span>
               </div>
@@ -137,7 +137,7 @@ export default function KanbanListPage() {
                       key={lead.id}
                       draggable={hasPermission("Kanban-update")}
                       onDragStart={(e) => handleDragStart(e, lead.id)}
-                      className={`group relative p-3.5 bg-zinc-50 border border-zinc-200/50 rounded-lg shadow-sm text-left transition-all ${
+                      className={`group relative p-4 bg-background/50 border border-border-ui/50 rounded-lg shadow-sm text-left transition-all ${
                         hasPermission("Kanban-update") 
                           ? "cursor-grab active:cursor-grabbing hover:shadow-md hover:border-primary-teal/30" 
                           : "cursor-default"
@@ -145,43 +145,47 @@ export default function KanbanListPage() {
                     >
                       {/* Left side color border matching status column color */}
                       <div 
-                        className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full" 
+                        className="absolute left-0 top-3 bottom-3 w-1.5 rounded-r-full" 
                         style={{ backgroundColor: stageColor }}
                       />
 
                       {/* Default Visible Content */}
-                      <div className="pl-3 space-y-0.5">
-                        <h5 className="text-xs font-bold text-zinc-800 uppercase tracking-wide">
-                          {lead.assginName || lead.name || "-"}
+                      <div className="pl-4 space-y-1">
+                        <h5 className="text-[14px] font-bold text-[#1f2f3e] uppercase tracking-wide leading-tight">
+                          {lead.name || lead.assginName || "-"}
                         </h5>
-                        {lead.assginEmail && (
-                          <p className="text-[10px] text-primary-teal font-medium truncate">
-                            ✉ {lead.assginEmail}
-                          </p>
-                        )}
-                        {/* <p className="text-[10px] text-zinc-500 font-semibold">
-                          📞 {lead.phone_number}
-                        </p> */}
+                        <div className="flex flex-col gap-0.5">
+                          {lead.assginName && (
+                             <p className="text-[11px] text-text-secondary font-bold uppercase tracking-wider">
+                              Assigned: {lead.assginName}
+                            </p>
+                          )}
+                          {lead.assginEmail && (
+                            <p className="text-[11px] text-primary-teal font-semibold truncate">
+                              ✉ {lead.assginEmail}
+                            </p>
+                          )}
+                        </div>
                       </div>
 
                       {/* Hover Expanded Content */}
-                      <div className="hidden group-hover:block pt-3 mt-3 space-y-2.5 border-t border-zinc-200 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="hidden group-hover:block pt-3 mt-3 space-y-3 border-t border-border-ui animate-in fade-in slide-in-from-top-2 duration-200">
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] px-1.5 py-0.5 bg-primary-teal/10 text-primary-teal font-bold rounded-lg">
+                          <span className="text-[11px] px-2 py-0.5 bg-primary-teal/10 text-primary-teal font-bold rounded-lg uppercase">
                             {lead.productName}
                           </span>
-                          <span className="text-[10px] font-black text-zinc-700">
+                          <span className="text-xs font-bold text-[#1f2f3e]">
                             ₹{lead.subtotal}
                           </span>
                         </div>
 
                         {lead.note && (
-                          <p className="text-[10px] text-zinc-500 line-clamp-3 bg-zinc-100 p-2 rounded-lg">
+                          <p className="text-[11px] text-text-secondary line-clamp-3 bg-white p-2.5 rounded-lg border border-border-ui/30 italic">
                             {lead.note}
                           </p>
                         )}
                         
-                        <div className="flex items-center justify-between text-[9px] font-semibold text-zinc-400 uppercase tracking-wider">
+                        <div className="flex items-center justify-between text-[10px] font-bold text-text-secondary uppercase tracking-widest">
                           <span>Qty: {lead.quantity}</span>
                           <span>{lead.date}</span>
                         </div>
@@ -189,7 +193,7 @@ export default function KanbanListPage() {
                     </div>
                   ))
                 ) : (
-                  <div className="flex items-center justify-center h-full min-h-[100px] border-2 border-dashed border-zinc-200 rounded-lg bg-zinc-50/50 text-[10px] text-zinc-400 font-medium tracking-wide">
+                  <div className="flex items-center justify-center h-full min-h-[120px] border-2 border-dashed border-border-ui rounded-lg bg-background/30 text-xs text-text-secondary font-bold uppercase tracking-widest">
                     Drop leads here
                   </div>
                 )}

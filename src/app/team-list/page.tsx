@@ -207,29 +207,35 @@ export default function TeamListPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header Panel */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card-bg p-8 border border-border-ui rounded-lg shadow-soft">
-        <div className="space-y-1">
-          <h2 className="text-xl font-black uppercase tracking-wider text-text-primary">
-            Teams List
-          </h2>
-          <p className="text-xs text-text-secondary font-semibold uppercase tracking-wider">
-            Group agents under regional or target teams
-          </p>
-        </div>
-        {hasPermission("Team-add") && (
-          <Button
-            onClick={() => {
-              clear();
-              setModalOpen(true);
-            }}
-            variant="primary"
-            className="rounded-lg px-6"
-          >
-            Create Team
-          </Button>
-        )}
+      <div className="space-y-1">
+        <h2 className="text-2xl font-bold text-[#1f2f3e]">
+          Team List
+        </h2>
+        <p className="text-sm text-text-secondary font-medium tracking-wide">
+          Manage departments and assign team heads
+        </p>
       </div>
+
+      <div className="bg-white p-6 border border-border-ui rounded-lg shadow-sm space-y-6">
+        {/* Header Block */}
+        <div className="flex items-center justify-between border-b border-border-ui pb-4">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-text-secondary">
+              Manage your organizational structure
+            </span>
+          </div>
+          {hasPermission("Team-add") && (
+            <Button
+              onClick={() => {
+                clear();
+                setModalOpen(true);
+              }}
+              variant="primary"
+            >
+              Add Team
+            </Button>
+          )}
+        </div>
 
       {error && (
         <div className="text-sm text-rose-500 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded px-3 py-2">

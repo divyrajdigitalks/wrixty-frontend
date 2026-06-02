@@ -83,11 +83,18 @@ export default function ActivityLogPage() {
 
   return (
     <div className="space-y-6">
+      <div className="space-y-1">
+        <h2 className="text-2xl font-bold text-[#1f2f3e]">
+          Activity Log
+        </h2>
+        <p className="text-sm text-text-secondary font-medium tracking-wide">
+          Track all lead and order activities across the system
+        </p>
+      </div>
     
-      <div className="bg-white  p-6 border border-zinc-200  rounded-lg shadow-sm space-y-6">
+      <div className="bg-white p-6 border border-border-ui rounded-lg shadow-sm space-y-6">
         
-       
-        <div className="flex flex-wrap items-center justify-end gap-3 border-b border-zinc-100  pb-4">
+        <div className="flex flex-wrap items-center justify-end gap-3 border-b border-border-ui pb-4">
           <div className="w-full sm:w-auto min-w-[160px]">
             <Select
               value={filterUser}
@@ -110,7 +117,7 @@ export default function ActivityLogPage() {
           </Button>
           
           <div className="flex items-center gap-3 ml-2">
-            <span className="text-xs font-semibold text-zinc-500 bg-zinc-100  px-3 py-2 rounded-lg border border-zinc-200/50 ">
+            <span className="text-sm font-semibold text-text-secondary bg-background px-4 py-2 rounded-lg border border-border-ui ">
               📅 May 30, 2026 - May 30, 2526
             </span>
           </div>

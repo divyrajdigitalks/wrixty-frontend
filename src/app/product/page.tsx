@@ -214,12 +214,22 @@ export default function ProductPage() {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-6">
+      <div className="space-y-1">
+        <h2 className="text-2xl font-bold text-[#1f2f3e]">
+          Product List
+        </h2>
+        <p className="text-sm text-text-secondary font-medium tracking-wide">
+          Manage your inventory and product pricing
+        </p>
+      </div>
 
+      <div className="bg-white p-6 border border-border-ui rounded-lg shadow-sm space-y-6">
         {/* Header Block */}
-        <div className="pb-4 space-y-3">
+        <div className="pb-4 space-y-3 border-b border-border-ui">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-zinc-800 ">Product List</h2>
+            <h2 className="text-sm font-black uppercase tracking-wider text-text-secondary">
+              Inventory Overview
+            </h2>
             {hasPermission("Product-add") && (
               <Button onClick={() => { clear(); setModalOpen(true); }} variant="primary">Add Product</Button>
             )}

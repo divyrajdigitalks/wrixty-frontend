@@ -139,16 +139,16 @@ export default function DashboardPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-subtle p-8 border border-border-ui rounded-lg shadow-soft relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary-teal/5 blur-3xl rounded-full -mr-32 -mt-32"></div>
         <div className="space-y-1 relative z-10">
-          <h2 className="text-2xl font-black uppercase tracking-wider text-text-primary">
+          <h2 className="text-2xl font-black uppercase tracking-wider text-[#1f2f3e]">
             Ayurvedic Dashboard
           </h2>
-          <p className="text-xs text-text-secondary font-semibold uppercase tracking-wider">
+          <p className="text-sm text-text-secondary font-semibold uppercase tracking-wider">
             Real-time analytics and staff metrics overview
           </p>
         </div>
         <div className="flex items-center gap-2 bg-white/50 backdrop-blur-sm border border-primary-teal/10 px-4 py-2 rounded-lg relative z-10">
           <TrendingUp className="w-4 h-4 text-primary-teal" />
-          <span className="text-xs font-bold text-primary-teal uppercase tracking-wider">
+          <span className="text-sm font-bold text-primary-teal uppercase tracking-wider">
             Return Rate: {returnRate}%
           </span>
         </div>
@@ -163,13 +163,13 @@ export default function DashboardPage() {
           >
             <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary-teal to-secondary-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <div className="space-y-2 text-left relative z-10">
-              <span className="text-xs text-text-secondary font-bold uppercase tracking-wider">
+              <span className="text-sm text-text-secondary font-bold uppercase tracking-wider">
                 {metric.name}
               </span>
-              <h3 className="text-3xl font-black text-text-primary tracking-tight">
+              <h3 className="text-3xl font-black text-[#1f2f3e] tracking-tight">
                 {metric.value}
               </h3>
-              <p className="text-[10px] text-text-secondary font-medium">
+              <p className="text-xs text-text-secondary font-medium">
                 {metric.desc}
               </p>
             </div>
@@ -184,7 +184,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Side: Staff Stats */}
         <div className="lg:col-span-2 space-y-4">
-          <h4 className="text-xs font-black uppercase tracking-wider text-text-secondary px-2">
+          <h4 className="text-sm font-black uppercase tracking-wider text-text-secondary px-2">
             👥 Staff Performance Matrix
           </h4>
           <div className="bg-card-bg p-6 border border-border-ui rounded-lg shadow-soft">
@@ -194,7 +194,7 @@ export default function DashboardPage() {
 
         {/* Right Side: Best Selling Products */}
         <div className="space-y-4">
-          <h4 className="text-xs font-black uppercase tracking-wider text-text-secondary px-2">
+          <h4 className="text-sm font-black uppercase tracking-wider text-text-secondary px-2">
             📦 Best Selling Products
           </h4>
           <div className="bg-card-bg p-6 border border-border-ui rounded-lg shadow-soft">
