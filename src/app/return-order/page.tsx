@@ -322,7 +322,7 @@ export default function ReturnOrderPage() {
               className="bg-teal-800 hover:bg-teal-700 focus:ring-teal-800 whitespace-nowrap"
               onClick={openAddModal}
             >
-              Add Return<br />Order
+              Add Return Order
             </Button>
           )}
         </div>
@@ -463,7 +463,7 @@ export default function ReturnOrderPage() {
                       </td>
                       <td className="p-3">{row.subtotal}</td>
                       <td className="p-3">
-                         <button onClick={() => handleRemoveProduct(row.productId)} className="text-red-500 hover:text-red-700"><Close className="w-4 h-4" /></button>
+                         <button onClick={() => handleRemoveProduct(row.productId)} className="p-1.5 bg-rose-500 hover:bg-rose-400 text-white rounded-lg transition-all shadow-sm"><FiTrash2 className="w-3.5 h-3.5" /></button>
                       </td>
                     </tr>
                   )) : (
