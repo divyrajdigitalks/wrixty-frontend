@@ -30,10 +30,13 @@ export interface Order {
   paymentType: "COD" | "Prepaid";
   courier: string;
   assginTo: string;
+  assginToId?: string;
   transactionId: string;
   returnType?: string;
   repartOrderTotal?: number;
   status: string; // Converted, Dispatched, Delivered, Returned
+  _products?: any[];
+  products?: any[];
 }
 
 interface SelectedProductRow {
@@ -99,6 +102,7 @@ export default function OrderListPage() {
         paymentType: o.paymentType || "COD",
         courier: o.courier || "",
         assginTo: o.assginTo?.name || o.assginTo || "",
+        assginToId: typeof o.assginTo === 'object' ? (o.assginTo?._id || o.assginTo?.id || "") : (o.assginTo || ""),
         transactionId: o.transactionId || "",
         status: o.status || "Dispatched",
         // Store raw products array for edit modal
@@ -153,7 +157,29 @@ export default function OrderListPage() {
   const addOrder = async (o: Omit<Order, "id">) => {
     try {
       const created = await createOrderApi(o as any);
-      setOrders(prev => [...prev, { ...o, id: (created as any)._id || Date.now().toString() }]);
+      const createdId = (created as any)._id || Date.now().toString();
+      
+      setOrders(prev => {
+        const existingIdx = prev.findIndex(p => p.id === createdId);
+        if (existingIdx >= 0) {
+          // If the backend merged this order into an existing one, update the existing row
+          const updated = [...prev];
+          // We map the returned backend object to the frontend format to get accurate totals
+          const oData = created as any;
+          updated[existingIdx] = {
+            ...updated[existingIdx],
+            product: oData.product || (oData.products?.map((p: any) => p.name).join(", ") || ""),
+            amount: oData.amount || 0,
+            quantity: oData.quantity || 1,
+            subtotal: oData.amount || 0,
+            grandTotal: oData.grandTotal || oData.subtotal || (oData.products?.length ? oData.products.reduce((acc: number, p: any) => acc + (p.subtotal || (p.amount * (p.quantity || 1)) || 0), 0) : (oData.amount || 0)),
+            _products: oData.products || []
+          };
+          return updated;
+        }
+        // Otherwise, append as a new order
+        return [...prev, { ...o, id: createdId }];
+      });
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to create order");
       throw err;
@@ -285,6 +311,20 @@ export default function OrderListPage() {
         transactionId: txnId,
         courier,
         product: modalSelectedProducts.map(p => p.name).join(", "),
+        products: modalSelectedProducts.map((p) => ({
+          productId: p.productId || p.id,
+          name: p.name,
+          amount: p.amount,
+          quantity: p.quantity,
+          subtotal: p.subtotal
+        })),
+        _products: modalSelectedProducts.map((p) => ({
+          productId: p.productId || p.id,
+          name: p.name,
+          amount: p.amount,
+          quantity: p.quantity,
+          subtotal: p.subtotal
+        })),
         grandTotal: totalAmount
       });
       toast.success(`Order details updated successfully.`);
@@ -299,10 +339,33 @@ export default function OrderListPage() {
   // --- REPEAT ORDER LOGIC ---
   const openRepeat = (order: Order) => {
     setActiveOrder(order);
-    setPaymentType("COD");
-    setTxnId("");
-    setCourier(couriers[0]?.name || "");
-    setModalSelectedProducts([]); // Empty state as requested
+    setPaymentType(order.paymentType === "Prepaid" ? "Prepaid" : "COD");
+    setTxnId(order.transactionId || "");
+    setCourier(order.courier || couriers[0]?.name || "");
+
+    const rawProducts: any[] = (order as any)._products || [];
+    if (rawProducts.length > 0) {
+      setModalSelectedProducts(rawProducts.map((p: any) => ({
+        id: p.productId?._id || p.productId || p._id || p.id || Math.random().toString(),
+        productId: p.productId?._id || p.productId || p._id || p.id,
+        name: p.productId?.name || p.name || "",
+        amount: p.productId?.amount || p.amount || 0,
+        quantity: p.quantity || 1,
+        subtotal: p.subtotal || ((p.productId?.amount || p.amount || 0) * (p.quantity || 1))
+      })));
+    } else {
+      const existingProds = products.filter((p) => (order.product || "").includes(p.name));
+      setModalSelectedProducts(existingProds.map((p) => ({
+        id: p._id || p.id,
+        productId: p._id || p.id,
+        name: p.name,
+        amount: p.amount,
+        quantity: 1,
+        subtotal: p.amount
+      })));
+    }
+
+    setModalProductSelect("");
     setRepeatOpen(true);
   };
 
@@ -316,19 +379,35 @@ export default function OrderListPage() {
 
     setIsRepeatingOrder(true);
     try {
+      const resolvedAssigneeId =
+        (activeOrder as any).assginToId ||
+        (typeof (activeOrder as any).assginTo === 'object'
+          ? ((activeOrder as any).assginTo?._id || (activeOrder as any).assginTo?.id)
+          : null) ||
+        users.find((u) => u.name === activeOrder.assginTo || u._id === activeOrder.assginTo || u.id === activeOrder.assginTo)?._id ||
+        users.find((u) => u.name === activeOrder.assginTo || u._id === activeOrder.assginTo || u.id === activeOrder.assginTo)?.id ||
+        activeOrder.assginTo;
+
       await addOrder({
         leadId: activeOrder.leadId,
         name: activeOrder.name,
         phone_number: activeOrder.phone_number,
-        product: modalSelectedProducts.map(p => p.name).join(", "),
-        amount: modalSelectedProducts.length > 0 ? modalSelectedProducts[0].amount : 0,
-        quantity: modalSelectedProducts.reduce((sum, p) => sum + p.quantity, 0),
+        products: modalSelectedProducts.map((p) => ({
+          productId: p.productId || p.id,
+          name: p.name,
+          amount: p.amount,
+          quantity: p.quantity,
+          subtotal: (p.amount || 0) * (p.quantity || 1)
+        })),
+        product: modalSelectedProducts.map((p) => p.name).join(", "),
+        amount: modalSelectedProducts.reduce((sum, p) => sum + (p.amount || 0), 0),
+        quantity: modalSelectedProducts.reduce((sum, p) => sum + (p.quantity || 0), 0),
         subtotal: totalAmount,
         grandTotal: totalAmount,
         date: new Date().toISOString().split("T")[0],
         paymentType,
         courier,
-        assginTo: activeOrder.assginTo,
+        assginTo: resolvedAssigneeId,
         transactionId: txnId,
         status: "Dispatched"
       });
@@ -645,6 +724,7 @@ export default function OrderListPage() {
                     paymentType: o.paymentType || "COD",
                     courier: o.courier || "",
                     assginTo: o.assginTo?.name || o.assginTo || "",
+                    assginToId: typeof o.assginTo === 'object' ? (o.assginTo?._id || o.assginTo?.id || "") : (o.assginTo || ""),
                     transactionId: o.transactionId || "",
                     status: o.status || "Dispatched",
                     _products: o.products || []

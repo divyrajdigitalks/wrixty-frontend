@@ -288,10 +288,13 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
               onChange={(e) => {
                 const selVal = e.target.value;
                 setName(selVal);
+
                 const selected = customers.find(c => c.name === selVal);
-                if (selected && selected.phone_number) {
+                if (selected?.phone_number) {
                   const safePhone = selected.phone_number.replace(/\D/g, "").slice(0, 10);
                   setPhone(safePhone);
+                } else {
+                  setPhone("");
                 }
               }} 
               required
