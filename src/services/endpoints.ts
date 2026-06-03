@@ -67,12 +67,18 @@ export interface EndPointApi {
   leadCreate: string;
   leadUpdate: string;
   leadDelete: string;
+  leadExport: string;
 
   // Orders
   orders: string;
   orderCreate: string;
   orderUpdate: string;
   orderDelete: string;
+  orderExport: string;
+
+  // Return Orders (adding if missing)
+  returnOrders: string;
+  returnOrderExport: string;
 
   // Activity Logs
   activityLogs: string;
@@ -147,12 +153,18 @@ const endPointApi: EndPointApi = {
   leadCreate: 'leads',
   leadUpdate: 'leads',
   leadDelete: 'leads',
+  leadExport: 'leads/export',
 
   // Orders
   orders: 'orders',
   orderCreate: 'orders',
   orderUpdate: 'orders',
   orderDelete: 'orders',
+  orderExport: 'orders/export',
+
+  // Return Orders
+  returnOrders: 'return-orders',
+  returnOrderExport: 'return-orders/export',
 
   // Activity Logs
   activityLogs: 'activity-logs',

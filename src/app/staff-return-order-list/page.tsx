@@ -14,23 +14,22 @@ interface StaffStat {
 export default function StaffReturnOrderListPage() {
   const [staffStats, setStaffStats] = useState<StaffStat[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const loadData = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetchStaffReturnStats();
+      // The API returns an array directly because it returns res.status(200).json(stats)
+      // apiGet in api.ts returns the axios response, so res.data is the array
+      const stats = Array.isArray(res?.data) ? res.data : (res?.data?.data || []);
+      setStaffStats(stats);
+    } catch(err) {
+      console.error("Failed to fetch staff return order stats", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      try {
-        const res = await fetchStaffReturnStats();
-        // The API returns an array directly because it returns res.status(200).json(stats)
-        // apiGet in api.ts returns the axios response, so res.data is the array
-        const stats = Array.isArray(res?.data) ? res.data : (res?.data?.data || []);
-        setStaffStats(stats);
-      } catch(err) {
-        console.error("Failed to fetch staff return order stats", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
     loadData();
   }, []);
 
@@ -50,9 +49,6 @@ export default function StaffReturnOrderListPage() {
           <h2 className="text-xl font-bold text-zinc-800">
             Return Order Report List
           </h2>
-          <span className="flex items-center gap-2 text-xs font-semibold text-text-secondary bg-background px-4 py-2 rounded-lg border border-border-ui/50">
-            <CalendarToday className="w-4 h-4 text-text-secondary" /> May 30, 2026 - May 30, 2026
-          </span>
         </div>
 
         <Table data={staffStats} columns={columns} selectable={false} isLoading={isLoading} />

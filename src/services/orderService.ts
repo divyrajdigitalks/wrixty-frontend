@@ -1,4 +1,5 @@
-import { apiGet, apiPost, apiPut, apiDelete, endPointApi } from './api';
+import api, { apiGet, apiPost, apiPut, apiDelete, endPointApi } from './api';
+import { jsonToCsvBlob } from '../utils/csvUtils';
 
 export interface OrderProduct {
   productId: string;
@@ -41,6 +42,8 @@ export interface FetchParams {
   assginTo?: string;
   courier?: string;
   search?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 // GET /api/orders
@@ -64,4 +67,32 @@ export const updateOrderApi = async (id: string, payload: Partial<Order>): Promi
 // DELETE /api/orders/:id
 export const deleteOrderApi = async (id: string): Promise<void> => {
   await apiDelete(endPointApi.orderDelete, id);
+};
+
+// GET /api/orders/export
+export const exportOrders = async (params?: FetchParams): Promise<Blob> => {
+  const { data } = await api.get(endPointApi.orderExport, { params });
+  
+  const formattedData = data.map((order: any, index: number) => ({
+    "No": index + 1,
+    "Lead Name": order.name || "-",
+    "Product Name": order.product || (order.products?.map((p: any) => p.name).join(", ") || "-"),
+    "Grand Total": `₹${order.grandTotal || order.amount || 0}`,
+    "Phone Number": order.phone_number || "-",
+    "Date": order.createdAt ? (() => {
+        const d = new Date(order.createdAt);
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = String(d.getFullYear()).slice(-2);
+        return `${day}/${month}/${year}`;
+    })() : "-",
+    "Payment Type": order.paymentType || "COD",
+    "Courier": order.courier || "-",
+    "Assign To": order.assginTo?.name || order.assginTo || "-",
+    "Transaction ID": order.transactionId || "-",
+    "Return Type": order.status === "Returned" ? "Returned" : "-",
+    "Repart Order Total": index + 1
+  }));
+
+  return jsonToCsvBlob(formattedData);
 };

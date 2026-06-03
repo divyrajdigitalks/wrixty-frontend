@@ -6,6 +6,7 @@ import { Table, Column } from "../../components/common/Table";
 import { FiTrash2 } from "react-icons/fi";
 import { useToast } from "../../context/ToastContext";
 import { Button } from "../../components/common/Button";
+import { DateRangePicker } from "../../components/common/DateRangePicker";
 
 export interface Task {
   id: string;
@@ -23,6 +24,14 @@ export default function TaskListPage() {
     { id: "1", date: "2026-05-30", assginUser: "Aman Sharma", lead: "Rajesh Kumar", phone_number: "9988776655", addedBy: "Super Admin", message: "Call regarding bulk order requirements", status: "Pending" },
     { id: "2", date: "2026-05-29", assginUser: "Priya Patel", lead: "Suresh Gupta", phone_number: "8877665544", addedBy: "Super Admin", message: "Confirm delivery details", status: "Completed" }
   ]);
+  
+  const getTodayString = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+
+  const [startDate, setStartDate] = useState<string | null>(getTodayString());
+  const [endDate, setEndDate] = useState<string | null>(getTodayString());
   const toast = useToast();
 
   const deleteTask = (id: string) => {
@@ -38,6 +47,23 @@ export default function TaskListPage() {
     toast.warning("Record deleted successfully.");
     setIsDeleting(null);
   };
+
+  const filteredTasks = React.useMemo(() => {
+    if (!startDate && !endDate) return tasks;
+    return tasks.filter(t => {
+      const taskDate = new Date(t.date);
+      let isValid = true;
+      if (startDate) {
+        const start = new Date(startDate);
+        if (taskDate < start) isValid = false;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        if (taskDate > end) isValid = false;
+      }
+      return isValid;
+    });
+  }, [tasks, startDate, endDate]);
 
   const columns: Column<Task>[] = [
     { key: "date", header: "Date", render: (val) => `${val} 09:55 am` },
@@ -75,13 +101,18 @@ export default function TaskListPage() {
         
         {/* Date Range Top Right */}
         <div className="flex items-center justify-end pb-6">
-          <span className="flex items-center gap-2 text-xs font-semibold text-text-secondary bg-background px-4 py-2 rounded-lg border border-border-ui/50">
-            <CalendarToday className="w-4 h-4 text-text-secondary" /> May 30, 2026 - May 30, 2026
-          </span>
+          <DateRangePicker 
+            startDate={startDate} 
+            endDate={endDate} 
+            onChange={(start, end) => {
+              setStartDate(start);
+              setEndDate(end);
+            }} 
+          />
         </div>
 
         {/* Table Element */}
-        <Table data={tasks} columns={columns} selectable={false} />
+        <Table data={filteredTasks} columns={columns} selectable={false} />
       </div>
     </div>
   );

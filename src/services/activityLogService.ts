@@ -18,6 +18,8 @@ export interface FetchActivityLogsParams {
   page?: number;
   limit?: number;
   userId?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface FetchActivityLogsResponse {

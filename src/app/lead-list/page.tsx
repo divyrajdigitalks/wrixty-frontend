@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { fetchUsers } from "../../services/userService";
 import { fetchProducts } from "../../services/productService";
 import { fetchStatuses } from "../../services/statusService";
-import { fetchLeads, updateLeadApi, deleteLeadApi } from "../../services/leadService";
+import { fetchLeads, updateLeadApi, deleteLeadApi, exportLeads } from "../../services/leadService";
 import { createOrderApi } from "../../services/orderService";
 import { fetchReasonToCalls } from "../../services/reasonToCallService";
 import { fetchCouriers } from "../../services/courierService";
@@ -40,6 +40,7 @@ import { Button } from "../../components/common/Button";
 import { Add, SwapHoriz, Assignment, ViewKanban, CalendarToday } from "@mui/icons-material";
 import { FiEdit, FiTrash2, FiFileText } from "react-icons/fi";
 import { LeadFormModal } from "../../components/leads/LeadFormModal";
+import { DateRangePicker } from "../../components/common/DateRangePicker";
 
 interface SelectedProductRow {
   id?: string;
@@ -61,12 +62,23 @@ export default function LeadListPage() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  
+  const getTodayString = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
 
-  const loadLeadsData = async (overrideAssignee?: string, overrideSearch?: string) => {
+  const [startDate, setStartDate] = useState<string | null>(getTodayString());
+  const [endDate, setEndDate] = useState<string | null>(getTodayString());
+
+  const loadLeadsData = async (overrideAssignee?: string, overrideSearch?: string, overrideDates?: { start: string | null, end: string | null }) => {
     setIsFetchingData(true);
     try {
       const assigneeFilter = overrideAssignee === 'all' ? undefined : (overrideAssignee || (filterAssignee !== 'all' ? filterAssignee : undefined));
       const searchToUse = overrideSearch !== undefined ? overrideSearch : searchQuery;
+      const startToUse = overrideDates !== undefined ? overrideDates.start : startDate;
+      const endToUse = overrideDates !== undefined ? overrideDates.end : endDate;
+      
       const leadsRes = await fetchLeads({
         page: 1,
         limit: 100,
@@ -74,7 +86,9 @@ export default function LeadListPage() {
         product: filterProduct !== 'all' ? filterProduct : undefined,
         assgin: assigneeFilter,
         status: filterStatus !== 'all' ? filterStatus : undefined,
-        reason_call: filterReason !== 'all' ? filterReason : undefined
+        reason_call: filterReason !== 'all' ? filterReason : undefined,
+        startDate: startToUse || undefined,
+        endDate: endToUse || undefined
       });
       const mappedLeads = leadsRes.data.map((l: any) => ({
         ...l,
@@ -200,6 +214,7 @@ export default function LeadListPage() {
   const [isFetchingData, setIsFetchingData] = useState(false);
   const [isConvertingLead, setIsConvertingLead] = useState(false);
   const [isDeletingLead, setIsDeletingLead] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const [noteText, setNoteText] = useState("");
   const [convertSelectedProducts, setConvertSelectedProducts] = useState<SelectedProductRow[]>([]);
@@ -375,6 +390,34 @@ export default function LeadListPage() {
     }
   };
 
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const assigneeFilter = filterAssignee !== 'all' ? filterAssignee : undefined;
+      const blob = await exportLeads({
+        search: searchQuery || undefined,
+        product: filterProduct !== 'all' ? filterProduct : undefined,
+        assgin: assigneeFilter,
+        status: filterStatus !== 'all' ? filterStatus : undefined,
+        reason_call: filterReason !== 'all' ? filterReason : undefined,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined
+      });
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `leads_export_${new Date().getTime()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      toast.success("Export successful!");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to export leads");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const columns: Column<Lead>[] = [
     { key: "id", header: "No", render: (_, __, i) => i + 1, sortable: false },
     { key: "name", header: "Customer Name", render: (val) => <span className="uppercase">{val || "-"}</span> },
@@ -433,8 +476,9 @@ export default function LeadListPage() {
               variant="primary"
               size="sm"
               className="text-[11px] whitespace-nowrap px-4"
+              disabled={row.orderStatus}
             >
-              Convert To Order
+              {row.orderStatus ? "Converted" : "Convert To Order"}
             </Button>
           )}
         </>
@@ -502,10 +546,16 @@ export default function LeadListPage() {
             Lead List
           </h2>
           <div className="flex items-center gap-4">
-            <span className="flex items-center gap-2 text-xs font-semibold text-text-secondary bg-background px-4 py-2 rounded-lg border border-border-ui/50">
-              <CalendarToday className="w-4 h-4 text-text-secondary" /> May 30, 2026 - May 30, 2026
-            </span>
-            {hasPermission("Kanban-view") && (
+            <DateRangePicker 
+              startDate={startDate} 
+              endDate={endDate} 
+              onChange={(start, end) => {
+                setStartDate(start);
+                setEndDate(end);
+                loadLeadsData(undefined, undefined, { start, end });
+              }} 
+            />
+             {hasPermission("Kanban-view") && (
               <button
                 onClick={() => router.push("/kanban-list")}
                 className="p-2.5 bg-white border border-border-ui/50 text-text-secondary hover:text-primary-teal hover:border-primary-teal/50 rounded-lg transition-all shadow-sm flex items-center gap-2 font-bold text-sm"
@@ -589,6 +639,8 @@ export default function LeadListPage() {
                 if (isAdmin) setFilterAssignee("all");
                 setFilterStatus("all");
                 setFilterReason("all");
+                setStartDate(null);
+                setEndDate(null);
                 setTimeout(() => loadLeadsData(isAdmin ? "all" : (currentUser?._id || currentUser?.id)), 0);
               }}
             >
@@ -613,6 +665,8 @@ export default function LeadListPage() {
             <Button
               variant="outline"
               className="rounded-lg"
+              onClick={handleExport}
+              isLoading={isExporting}
             >
               Export
             </Button>

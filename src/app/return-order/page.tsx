@@ -1,4 +1,4 @@
-"use client";
+  "use client";
 
 import React, { useState } from "react";
 import { Table, Column } from "../../components/common/Table";
@@ -12,8 +12,9 @@ import { usePermission } from "../../utils/permissionUtils";
 import { fetchUsers } from "../../services/userService";
 import { fetchProducts } from "../../services/productService";
 import { fetchOrders } from "../../services/orderService";
-import { fetchReturnOrders, createReturnOrderApi, deleteReturnOrderApi, fetchReturnOrderById, updateReturnOrderApi } from "../../services/returnOrderService";
-import { Close, CalendarToday } from "@mui/icons-material";
+import { fetchReturnOrders, createReturnOrderApi, deleteReturnOrderApi, fetchReturnOrderById, updateReturnOrderApi, exportReturnOrders } from "../../services/returnOrderService";
+import { DateRangePicker } from "../../components/common/DateRangePicker";
+import { Close } from "@mui/icons-material";
 
 export interface ReturnOrder {
   id: string;
@@ -41,21 +42,35 @@ export default function ReturnOrderPage() {
   
   const [isFetchingData, setIsFetchingData] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isExporting, setIsExporting] = useState(false);
+  
+  const getTodayString = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+
+  const [startDate, setStartDate] = useState<string | null>(getTodayString());
+  const [endDate, setEndDate] = useState<string | null>(getTodayString());
 
   const [filterAssign, setFilterAssign] = useState("all");
   const [filterOrder, setFilterOrder] = useState("all");
   const [filterProduct, setFilterProduct] = useState("all");
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
-  const loadReturnOrdersData = async (searchOverride?: string) => {
+  const loadReturnOrdersData = async (searchOverride?: string, overrideDates?: { start: string | null, end: string | null }) => {
     try {
       setIsFetchingData(true);
       const searchToUse = searchOverride !== undefined ? searchOverride : searchQuery;
+      const startToUse = overrideDates !== undefined ? overrideDates.start : startDate;
+      const endToUse = overrideDates !== undefined ? overrideDates.end : endDate;
+      
       const res = await fetchReturnOrders({
         page: 1, limit: 100,
         search: searchToUse || undefined,
         assginTo: filterAssign !== "all" ? filterAssign : undefined,
-        product: filterProduct !== "all" ? filterProduct : undefined
+        product: filterProduct !== "all" ? filterProduct : undefined,
+        startDate: startToUse || undefined,
+        endDate: endToUse || undefined
       });
       // fetchReturnOrders returns raw axios response; backend returns { data: [...] } or array
       const rawData = res?.data?.data ?? res?.data ?? [];
@@ -66,8 +81,8 @@ export default function ReturnOrderPage() {
         phone_number: r.phone_number,
         assginTo: r.assginTo?.name || r.assginTo || "",
         assginToId: r.assginTo?._id || r.assginTo?.id || r.assginTo || "",
-        orderDate: r.orderId?.createdAt ? (() => {
-          const d = new Date(r.orderId.createdAt);
+        orderDate: r.createdAt ? (() => {
+          const d = new Date(r.createdAt);
           const day = String(d.getDate()).padStart(2, '0');
           const month = String(d.getMonth() + 1).padStart(2, '0');
           const year = String(d.getFullYear()).slice(-2);
@@ -120,6 +135,31 @@ export default function ReturnOrderPage() {
       setReturnOrders(prev => prev.filter(r => r.id !== id));
       toast.warning("Return Order deleted.");
     } catch(err: any) { toast.error("Failed to delete return order"); }
+  };
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const blob = await exportReturnOrders({
+        search: searchQuery || undefined,
+        assginTo: filterAssign !== "all" ? filterAssign : undefined,
+        product: filterProduct !== "all" ? filterProduct : undefined,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined
+      });
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `return_orders_export_${new Date().getTime()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      toast.success("Export successful!");
+    } catch (err: any) {
+      toast.error("Failed to export return orders");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   // Modal States
@@ -302,18 +342,15 @@ export default function ReturnOrderPage() {
           </h2>
 
           <div className="flex flex-wrap items-center gap-6 flex-1 justify-center">
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Order Date :</span>
-              <span className="flex items-center gap-2 text-xs font-semibold text-text-secondary bg-background px-4 py-2 rounded-lg border border-border-ui/50">
-                <CalendarToday className="w-4 h-4 text-text-secondary" /> May 30, 2026 - May 30, 2026
-              </span>
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Return Order Date :</span>
-              <span className="flex items-center gap-2 text-xs font-semibold text-text-secondary bg-background px-4 py-2 rounded-lg border border-border-ui/50">
-                <CalendarToday className="w-4 h-4 text-text-secondary" /> May 30, 2026 - May 30, 2026
-              </span>
-            </div>
+            <DateRangePicker 
+              startDate={startDate} 
+              endDate={endDate} 
+              onChange={(start, end) => {
+                setStartDate(start);
+                setEndDate(end);
+                loadReturnOrdersData(undefined, { start, end });
+              }} 
+            />
           </div>
 
           {hasPermission("Return-order-add") && (
@@ -366,7 +403,7 @@ export default function ReturnOrderPage() {
             <Button variant="danger" className="bg-rose-500 hover:bg-rose-600" onClick={() => { setFilterAssign("all"); setFilterOrder("all"); setFilterProduct("all"); setSearchQuery(""); loadReturnOrdersData(""); }}>
               Clear Filter
             </Button>
-            <Button variant="success">
+            <Button variant="success" onClick={handleExport} isLoading={isExporting}>
               Export
             </Button>
           </div>

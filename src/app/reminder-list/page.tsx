@@ -8,6 +8,7 @@ import { useToast } from "../../context/ToastContext";
 import { Button } from "../../components/common/Button";
 import { usePermission } from "../../utils/permissionUtils";
 import { fetchLeads, deleteLeadApi } from "../../services/leadService";
+import { DateRangePicker } from "../../components/common/DateRangePicker";
 
 
 export interface Reminder {
@@ -30,18 +31,31 @@ export default function ReminderListPage() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  
+  const getTodayString = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+
+  const [startDate, setStartDate] = useState<string | null>(getTodayString());
+  const [endDate, setEndDate] = useState<string | null>(getTodayString());
 
   const toast = useToast();
 
-  const loadRemindersData = async (assigneeFilter?: string, searchOverride?: string) => {
+  const loadRemindersData = async (assigneeFilter?: string, searchOverride?: string, overrideDates?: { start: string | null, end: string | null }) => {
     setIsFetchingData(true);
     try {
       const searchToUse = searchOverride !== undefined ? searchOverride : searchQuery;
+      const startToUse = overrideDates !== undefined ? overrideDates.start : startDate;
+      const endToUse = overrideDates !== undefined ? overrideDates.end : endDate;
+      
       const res = await fetchLeads({
         page: 1,
         limit: 100,
         assgin: assigneeFilter,
-        search: searchToUse || undefined
+        search: searchToUse || undefined,
+        reminderStartDate: startToUse || undefined,
+        reminderEndDate: endToUse || undefined
       });
       const data = res.data.filter((l: any) => l.reminder).map((l: any) => ({
         id: l._id || l.id,
@@ -143,9 +157,15 @@ export default function ReminderListPage() {
           <h2 className="text-2xl font-bold text-text-primary">
             Reminder List
           </h2>
-          <span className="flex items-center gap-2 text-xs font-semibold text-text-secondary bg-background px-4 py-2 rounded-lg border border-border-ui/50">
-            <CalendarToday className="w-4 h-4 text-text-secondary" /> May 30, 2026 - May 30, 2026
-          </span>
+          <DateRangePicker 
+            startDate={startDate} 
+            endDate={endDate} 
+            onChange={(start, end) => {
+              setStartDate(start);
+              setEndDate(end);
+              loadRemindersData(isAdmin ? undefined : (currentUser?._id || currentUser?.id), undefined, { start, end });
+            }} 
+          />
         </div>
 
         {/* Table Element */}
