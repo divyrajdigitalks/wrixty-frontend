@@ -358,5 +358,6 @@ export default function TeamListPage() {
         itemType="team"
       />
     </div>
+    </div>
   );
 }

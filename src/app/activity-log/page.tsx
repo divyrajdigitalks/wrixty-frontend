@@ -6,6 +6,7 @@ import { fetchActivityLogs, ActivityLog } from "../../services/activityLogServic
 import { Table, Column } from "../../components/common/Table";
 import { Select } from "../../components/common/Select";
 import { Button } from "../../components/common/Button";
+import { DateRangePicker } from "../../components/common/DateRangePicker";
 
 export default function ActivityLogPage() {
   const [users, setUsers] = useState<any[]>([]);
@@ -13,6 +14,14 @@ export default function ActivityLogPage() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [filterUser, setFilterUser] = useState("all");
   const [loading, setLoading] = useState(false);
+  
+  const getTodayString = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+
+  const [startDate, setStartDate] = useState<string | null>(getTodayString());
+  const [endDate, setEndDate] = useState<string | null>(getTodayString());
 
   useEffect(() => {
     const userStr = localStorage.getItem("wrixty_authenticated_user");
@@ -45,13 +54,18 @@ export default function ActivityLogPage() {
     }
   }, [isAdmin]);
 
-  const loadLogs = async () => {
+  const loadLogs = async (overrideDates?: { start: string | null, end: string | null }) => {
     setLoading(true);
     try {
+      const startToUse = overrideDates !== undefined ? overrideDates.start : startDate;
+      const endToUse = overrideDates !== undefined ? overrideDates.end : endDate;
+      
       const params: any = { page: 1, limit: 200 };
       if (filterUser !== "all") {
         params.userId = filterUser;
       }
+      if (startToUse) params.startDate = startToUse;
+      if (endToUse) params.endDate = endToUse;
       const res = await fetchActivityLogs(params);
       setLogs(res.data);
     } catch (err) {
@@ -124,7 +138,7 @@ export default function ActivityLogPage() {
             />
           </div>
           
-          <Button variant="primary" onClick={loadLogs}>
+          <Button variant="primary" onClick={() => loadLogs()}>
             Apply Filter
           </Button>
           <Button variant="outline" onClick={() => setFilterUser("all")}>
@@ -132,9 +146,15 @@ export default function ActivityLogPage() {
           </Button>
           
           <div className="flex items-center gap-3 ml-2">
-            <span className="text-sm font-semibold text-text-secondary bg-background px-4 py-2 rounded-lg border border-border-ui ">
-              📅 May 30, 2026 - May 30, 2526
-            </span>
+            <DateRangePicker 
+              startDate={startDate} 
+              endDate={endDate} 
+              onChange={(start, end) => {
+                setStartDate(start);
+                setEndDate(end);
+                loadLogs({ start, end });
+              }} 
+            />
           </div>
         </div>
 

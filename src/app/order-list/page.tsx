@@ -11,9 +11,10 @@ import { Close } from "@mui/icons-material";
 import { FiEdit, FiTrash2, FiRefreshCcw } from "react-icons/fi";
 import { fetchProducts } from "../../services/productService";
 import { fetchUsers } from "../../services/userService";
-import { fetchOrders, createOrderApi, updateOrderApi, deleteOrderApi } from "../../services/orderService";
+import { fetchOrders, createOrderApi, updateOrderApi, deleteOrderApi, exportOrders } from "../../services/orderService";
 import { usePermission } from "../../utils/permissionUtils";
 import { fetchCouriers } from "../../services/courierService";
+import { DateRangePicker } from "../../components/common/DateRangePicker";
 
 export interface Order {
   id: string;
@@ -52,17 +53,30 @@ export default function OrderListPage() {
   const [couriers, setCouriers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const loadOrdersData = async (searchOverride?: string) => {
+  const getTodayString = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+
+  const [startDate, setStartDate] = useState<string | null>(getTodayString());
+  const [endDate, setEndDate] = useState<string | null>(getTodayString());
+
+  const loadOrdersData = async (searchOverride?: string, overrideDates?: { start: string | null, end: string | null }) => {
     try {
       setIsFetchingData(true);
       const searchToUse = searchOverride !== undefined ? searchOverride : searchQuery;
+      const startToUse = overrideDates !== undefined ? overrideDates.start : startDate;
+      const endToUse = overrideDates !== undefined ? overrideDates.end : endDate;
+      
       const ordersRes = await fetchOrders({ 
         page: 1, 
         limit: 100,
         search: searchToUse || undefined,
         product: filterProduct !== 'all' ? filterProduct : undefined,
         assginTo: filterAssignee !== 'all' ? filterAssignee : undefined,
-        courier: filterCourier !== 'all' ? filterCourier : undefined
+        courier: filterCourier !== 'all' ? filterCourier : undefined,
+        startDate: startToUse || undefined,
+        endDate: endToUse || undefined
       });
       // Map backend orders to frontend format
       const mapped = ordersRes.data.map((o: any) => ({
@@ -175,6 +189,7 @@ export default function OrderListPage() {
   const [isUpdatingOrder, setIsUpdatingOrder] = useState(false);
   const [isRepeatingOrder, setIsRepeatingOrder] = useState(false);
   const [isDeletingOrder, setIsDeletingOrder] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const filteredOrders = React.useMemo(() => {
     return orders;
@@ -331,6 +346,32 @@ export default function OrderListPage() {
     setIsDeletingOrder(true);
     await deleteOrder(id);
     setIsDeletingOrder(false);
+  };
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const blob = await exportOrders({
+        search: searchQuery || undefined,
+        product: filterProduct !== 'all' ? filterProduct : undefined,
+        assginTo: filterAssignee !== 'all' ? filterAssignee : undefined,
+        courier: filterCourier !== 'all' ? filterCourier : undefined,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined
+      });
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `orders_export_${new Date().getTime()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      toast.success("Export successful!");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to export orders");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const columns: Column<Order>[] = [
@@ -533,9 +574,15 @@ export default function OrderListPage() {
             Order List
           </h2>
           <div className="flex items-center gap-4">
-            <span className="text-xs font-semibold text-text-secondary bg-background px-4 py-2 rounded-lg border border-border-ui/50">
-              📅 May 30, 2026 - May 30, 2026
-            </span>
+            <DateRangePicker 
+              startDate={startDate} 
+              endDate={endDate} 
+              onChange={(start, end) => {
+                setStartDate(start);
+                setEndDate(end);
+                loadOrdersData(undefined, { start, end });
+              }} 
+            />
           </div>
         </div>
 
@@ -581,6 +628,8 @@ export default function OrderListPage() {
               setFilterAssignee("all");
               setFilterCourier("all");
               setSearchQuery("");
+              setStartDate(null);
+              setEndDate(null);
               fetchOrders({ page: 1, limit: 100 }).then(res => {
                  const mapped = res.data.map((o: any) => ({
                     id: o._id || o.id,
@@ -608,6 +657,8 @@ export default function OrderListPage() {
             <Button
               variant="outline"
               className="rounded-lg px-6"
+              onClick={handleExport}
+              isLoading={isExporting}
             >
               Export
             </Button>
