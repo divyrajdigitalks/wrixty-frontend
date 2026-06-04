@@ -86,6 +86,7 @@ export const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ childre
             name: u.name || "Admin",
             email: u.email || "superadmin@gmail.com",
             avatar: u.name ? u.name.charAt(0).toUpperCase() : "A",
+            check_photo: u.check_photo,
             permissions: u.permissions || {}
           });
         } catch (e) {}

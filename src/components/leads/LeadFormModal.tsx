@@ -166,7 +166,7 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
             setStatus(prevLead.status?._id || prevLead.status || "");
             setStatusTwo(prevLead.reason_call?._id || prevLead.reason_call || "");
             setNoteText(prevLead.note || "");
-            
+
             // Assign Staff logic: Admin can see previous staff, Staff is forced to themselves
             if (isAdmin) {
               setAssignee(prevLead.assgin?._id || prevLead.assgin || "");
@@ -174,7 +174,7 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
               setAssignee(currentUser?._id || currentUser?.id || "");
             }
             setOrderStatus(Boolean(prevLead.orderStatus));
-            
+
             if (prevLead.products && prevLead.products.length > 0) {
               setModalSelectedProducts(prevLead.products.map((p: any) => ({
                 productId: p.productId?._id || p.productId,
@@ -276,9 +276,9 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
   };
 
   const toggleSelectRow = (productId: string) => {
-    setSelectedRowIds(prev => 
-      prev.includes(productId) 
-        ? prev.filter(id => id !== productId) 
+    setSelectedRowIds(prev =>
+      prev.includes(productId)
+        ? prev.filter(id => id !== productId)
         : [...prev, productId]
     );
   };
@@ -532,129 +532,129 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
           </div>
         </div>
 
-       <div className="space-y-4 text-left">
-  <div className="flex items-center justify-between">
-    <h4 className="text-xl font-bold text-zinc-800">
-      Selected Products
-    </h4>
-    {selectedRowIds.length > 0 && (
-      <Button 
-        type="button" 
-        variant="danger" 
-        size="sm" 
-        onClick={handleBulkRemove}
-        className="px-4 py-1.5"
-      >
-        Remove Selected ({selectedRowIds.length})
-      </Button>
-    )}
-  </div>
+        <div className="space-y-4 text-left">
+          <div className="flex items-center justify-between">
+            <h4 className="text-base font-bold text-zinc-800">
+              Selected Products
+            </h4>
+            {selectedRowIds.length > 0 && (
+              <Button
+                type="button"
+                variant="danger"
+                size="sm"
+                onClick={handleBulkRemove}
+                className="px-4 py-1.5"
+              >
+                Remove Selected ({selectedRowIds.length})
+              </Button>
+            )}
+          </div>
 
-  <div className="border border-zinc-200 overflow-hidden rounded-xl shadow-sm">
-    <table className="w-full border-collapse">
-      <thead>
-        <tr className="bg-zinc-100/80 border-b border-zinc-200">
-          <th className="p-4 w-12 text-center">
-            <input
-              type="checkbox"
-              checked={selectedRowIds.length === modalSelectedProducts.length && modalSelectedProducts.length > 0}
-              onChange={toggleSelectAll}
-              className="w-5 h-5 text-primary-teal rounded-md border-zinc-300 focus:ring-primary-teal cursor-pointer"
-            />
-          </th>
-          <th className="p-4 text-base font-bold text-zinc-700 uppercase tracking-wide text-left">
-            Product Name
-          </th>
-          <th className="p-4 text-base font-bold text-zinc-700 uppercase tracking-wide text-left">
-            Amount
-          </th>
-          <th className="p-4 text-base font-bold text-zinc-700 uppercase tracking-wide text-left">
-            Quantity
-          </th>
-          <th className="p-4 text-base font-bold text-zinc-700 uppercase tracking-wide text-left">
-            Subtotal
-          </th>
-          <th className="p-4 text-base font-bold text-zinc-700 uppercase tracking-wide text-center">
-            Action
-          </th>
-        </tr>
-      </thead>
+          <div className="border border-zinc-200 overflow-hidden rounded-xl shadow-sm">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-zinc-100/80 border-b border-zinc-200">
+                  <th className="p-3 w-12 text-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedRowIds.length === modalSelectedProducts.length && modalSelectedProducts.length > 0}
+                      onChange={toggleSelectAll}
+                      className="w-4 h-4 text-primary-teal rounded-md border-zinc-300 focus:ring-primary-teal cursor-pointer"
+                    />
+                  </th>
+                  <th className="p-3 text-xs font-semibold text-zinc-700 uppercase tracking-wide text-left">
+                    Product Name
+                  </th>
+                  <th className="p-3 text-xs font-semibold text-zinc-700 uppercase tracking-wide text-left">
+                    Amount
+                  </th>
+                  <th className="p-3 text-xs font-semibold text-zinc-700 uppercase tracking-wide text-left">
+                    Quantity
+                  </th>
+                  <th className="p-3 text-xs font-semibold text-zinc-700 uppercase tracking-wide text-left">
+                    Subtotal
+                  </th>
+                  <th className="p-3 text-xs font-semibold text-zinc-700 uppercase tracking-wide text-center">
+                    Action
+                  </th>
+                </tr>
+              </thead>
 
-      <tbody className="divide-y divide-zinc-200">
-        {modalSelectedProducts.length > 0 ? (
-          modalSelectedProducts.map((row) => (
-            <tr 
-              key={row.productId} 
-              className={`hover:bg-zinc-50/80 transition-colors ${selectedRowIds.includes(row.productId) ? 'bg-zinc-50' : ''}`}
-            >
-              <td className="p-4 text-center">
-                <input
-                  type="checkbox"
-                  checked={selectedRowIds.includes(row.productId)}
-                  onChange={() => toggleSelectRow(row.productId)}
-                  className="w-5 h-5 text-primary-teal rounded-md border-zinc-300 focus:ring-primary-teal cursor-pointer"
-                />
-              </td>
-              <td className="p-4 font-semibold text-zinc-800 text-lg">
-                {row.name}
-              </td>
+              <tbody className="divide-y divide-zinc-200">
+                {modalSelectedProducts.length > 0 ? (
+                  modalSelectedProducts.map((row) => (
+                    <tr
+                      key={row.productId}
+                      className={`hover:bg-zinc-50/80 transition-colors ${selectedRowIds.includes(row.productId) ? 'bg-zinc-50' : ''}`}
+                    >
+                      <td className="p-3 text-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedRowIds.includes(row.productId)}
+                          onChange={() => toggleSelectRow(row.productId)}
+                          className="w-4 h-4 text-primary-teal rounded-md border-zinc-300 focus:ring-primary-teal cursor-pointer"
+                        />
+                      </td>
+                      <td className="p-3 font-medium text-zinc-800 text-sm">
+                        {row.name}
+                      </td>
 
-              <td className="p-4 font-semibold text-zinc-700 text-base">
-                ₹{row.amount}
-              </td>
+                      <td className="p-3 font-medium text-zinc-700 text-sm">
+                        ₹{row.amount}
+                      </td>
 
-              <td className="p-4">
-                <input
-                  type="number"
-                  min="1"
-                  value={row.quantity}
-                  onChange={(e) =>
-                    handleQtyChange(row.productId, Number(e.target.value))
-                  }
-                  className="w-24 px-4 py-2.5 text-base font-bold bg-white border border-zinc-200 rounded-lg focus:ring-2 focus:ring-primary-teal/20 focus:border-primary-teal outline-none text-center shadow-sm"
-                />
-              </td>
+                      <td className="p-3 w-28">
+                        <input
+                          type="number"
+                          min="1"
+                          value={row.quantity}
+                          onChange={(e) =>
+                            handleQtyChange(row.productId, Number(e.target.value))
+                          }
+                          className="w-20 px-2 py-1 text-sm font-medium bg-white border border-zinc-200 rounded-lg focus:ring-1 focus:ring-primary-teal/20 focus:border-primary-teal outline-none text-center shadow-sm"
+                        />
+                      </td>
 
-              <td className="p-4 font-black text-zinc-900 text-lg">
-                ₹{row.subtotal}
-              </td>
+                      <td className="p-3 font-bold text-zinc-900 text-sm">
+                        ₹{row.subtotal}
+                      </td>
 
-              <td className="p-4 text-center">
-                <button
-                  type="button"
-                  onClick={() => handleRemoveProduct(row.productId)}
-                  className="p-2.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-lg transition-all duration-200"
-                  title="Remove Product"
-                >
-                  <FiTrash2 className="w-5 h-5" />
-                </button>
-              </td>
-            </tr>
-          ))
-        ) : (
-          <tr>
-            <td
-              colSpan={6}
-              className="p-12 text-center text-base text-zinc-400 font-semibold"
-            >
-              No products selected
-            </td>
-          </tr>
-        )}
-      </tbody>
-    </table>
-  </div>
-</div>
+                      <td className="p-3 text-center">
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveProduct(row.productId)}
+                          className="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-lg transition-all duration-200"
+                          title="Remove Product"
+                        >
+                          <FiTrash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="p-8 text-center text-sm text-zinc-400 font-medium"
+                    >
+                      No products selected
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-        <div className="flex items-center justify-between border-t border-zinc-150 pt-6 mt-4">
-          <span className="text-xl font-black text-zinc-800 bg-zinc-100 px-6 py-3 rounded-xl border border-zinc-200 shadow-sm">
+        <div className="flex items-center justify-between border-t border-zinc-150 pt-4 mt-2">
+          <span className="text-sm font-bold text-zinc-800 bg-zinc-100 px-4 py-2 rounded-lg border border-zinc-200 shadow-sm">
             Total Amount: <span className="text-primary-teal ml-1">₹{totalAmount.toLocaleString()}</span>
           </span>
-          <div className="flex gap-4">
-            <Button type="button" variant="outline" size="lg" onClick={onClose} className="px-8">
+          <div className="flex gap-3">
+            <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary" size="lg" isLoading={isLoading} className="px-10">
+            <Button type="submit" variant="primary" isLoading={isLoading}>
               Save Lead
             </Button>
           </div>

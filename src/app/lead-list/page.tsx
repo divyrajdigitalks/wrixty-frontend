@@ -807,11 +807,12 @@ export default function LeadListPage() {
             />
           </div>
 
-          <div className="space-y-2">
-            <h4 className="text-xs font-semibold text-zinc-700 uppercase tracking-wider">Select Products</h4>
-            <div className="flex gap-2 items-center">
+          <div className="border-t border-zinc-150 pt-6 space-y-4">
+            <h4 className="text-lg font-bold text-zinc-800">Choose Products to Add</h4>
+            <div className="flex gap-4 items-end bg-zinc-50 p-4 rounded-xl border border-zinc-200">
               <div className="flex-1">
                 <Select
+                  label="Search & Select Product"
                   value={currentSelectedProductId}
                   onChange={(e) => setCurrentSelectedProductId(e.target.value)}
                   options={[
@@ -820,55 +821,90 @@ export default function LeadListPage() {
                   ]}
                 />
               </div>
-              <Button type="button" variant="success" onClick={handleConvertAddProduct}>
+              <Button type="button" variant="success" size="lg" onClick={handleConvertAddProduct} className="mb-1">
                 Add Product
               </Button>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <h4 className="text-xs font-semibold text-zinc-700 uppercase tracking-wider">Selected Products</h4>
-            <div className="border border-zinc-200 rounded-lg overflow-hidden">
-              <table className="w-full text-left border-collapse text-xs">
+          <div className="space-y-4 text-left">
+            <div className="flex items-center justify-between">
+              <h4 className="text-base font-bold text-zinc-800">
+                Selected Products
+              </h4>
+            </div>
+
+            <div className="border border-zinc-200 overflow-hidden rounded-xl shadow-sm">
+              <table className="w-full border-collapse">
                 <thead>
-                  <tr className="bg-zinc-50 border-b border-zinc-200 font-semibold text-zinc-500">
-                    <th className="p-3">Product Name</th>
-                    <th className="p-3">Amount</th>
-                    <th className="p-3">Quantity</th>
-                    <th className="p-3">Subtotal</th>
-                    <th className="p-3">Action</th>
+                  <tr className="bg-zinc-100/80 border-b border-zinc-200">
+                    <th className="p-3 text-xs font-semibold text-zinc-700 uppercase tracking-wide text-left">
+                      Product Name
+                    </th>
+                    <th className="p-3 text-xs font-semibold text-zinc-700 uppercase tracking-wide text-left">
+                      Amount
+                    </th>
+                    <th className="p-3 text-xs font-semibold text-zinc-700 uppercase tracking-wide text-left">
+                      Quantity
+                    </th>
+                    <th className="p-3 text-xs font-semibold text-zinc-700 uppercase tracking-wide text-left">
+                      Subtotal
+                    </th>
+                    <th className="p-3 text-xs font-semibold text-zinc-700 uppercase tracking-wide text-center">
+                      Action
+                    </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-150">
+
+                <tbody className="divide-y divide-zinc-200">
                   {convertSelectedProducts.length > 0 ? (
                     convertSelectedProducts.map((row) => (
-                      <tr key={row.productId}>
-                        <td className="p-3 font-medium text-zinc-800">{row.name}</td>
-                        <td className="p-3 font-medium text-zinc-700">{row.amount}</td>
+                      <tr
+                        key={row.productId}
+                        className="hover:bg-zinc-50/80 transition-colors"
+                      >
+                        <td className="p-3 font-medium text-zinc-800 text-sm">
+                          {row.name}
+                        </td>
+
+                        <td className="p-3 font-medium text-zinc-700 text-sm">
+                          ₹{row.amount}
+                        </td>
+
                         <td className="p-3 w-28">
                           <input
                             type="number"
                             min="1"
                             value={row.quantity}
-                            onChange={(e) => handleConvertQtyChange(row.productId, Number(e.target.value))}
-                            className="w-16 px-2 py-1 bg-white border border-zinc-200 rounded-lg focus:ring-1 focus:ring-blue-500 outline-none"
+                            onChange={(e) =>
+                              handleConvertQtyChange(row.productId, Number(e.target.value))
+                            }
+                            className="w-20 px-2 py-1 text-sm font-medium bg-white border border-zinc-200 rounded-lg focus:ring-1 focus:ring-primary-teal/20 focus:border-primary-teal outline-none text-center shadow-sm"
                           />
                         </td>
-                        <td className="p-3 font-medium text-zinc-800">{row.subtotal}</td>
-                        <td className="p-3">
+
+                        <td className="p-3 font-bold text-zinc-900 text-sm">
+                          ₹{row.subtotal}
+                        </td>
+
+                        <td className="p-3 text-center">
                           <button
                             type="button"
                             onClick={() => handleConvertRemoveProduct(row.productId)}
-                            className="py-1 px-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg shadow-sm text-[10px] transition-all"
+                            className="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-lg transition-all duration-200"
+                            title="Remove Product"
                           >
-                            Remove
+                            <FiTrash2 className="w-4 h-4" />
                           </button>
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={5} className="p-6 text-center text-zinc-400 font-medium text-sm border-t-2 border-orange-500/30 bg-orange-50/20">
+                      <td
+                        colSpan={5}
+                        className="p-8 text-center text-sm text-zinc-400 font-medium"
+                      >
                         No products selected
                       </td>
                     </tr>
@@ -878,27 +914,27 @@ export default function LeadListPage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-4 border-t border-zinc-150 pt-4 mt-2">
-            <span className="text-sm font-semibold text-zinc-700 mr-auto">
-              Total Amount: {convertTotalAmount.toFixed(2)}
+          <div className="flex items-center justify-between border-t border-zinc-150 pt-4 mt-2">
+            <span className="text-sm font-bold text-zinc-800 bg-zinc-100 px-4 py-2 rounded-lg border border-zinc-200 shadow-sm mr-auto">
+              Total Amount: <span className="text-primary-teal ml-1">₹{convertTotalAmount.toLocaleString()}</span>
             </span>
-            <Button
-              type="button"
-              variant="danger"
-              className="bg-[#c2624c] hover:bg-[#b0523d] focus:ring-[#c2624c]"
-              onClick={() => setConvertModalOpen(false)}
-              disabled={isConvertingLead}
-            >
-              Close
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              className="bg-teal-800 hover:bg-teal-700 focus:ring-teal-800"
-              isLoading={isConvertingLead}
-            >
-              Save Changes
-            </Button>
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setConvertModalOpen(false)}
+                disabled={isConvertingLead}
+              >
+                Close
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                isLoading={isConvertingLead}
+              >
+                Save Changes
+              </Button>
+            </div>
           </div>
         </form>
       </Modal>

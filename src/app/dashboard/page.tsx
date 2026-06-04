@@ -57,6 +57,14 @@ export default function DashboardPage() {
     { key: "staffOrder", header: "Staff Order" }
   ];
 
+  const totalConvertedToOrders = staffReport.length > 0 
+    ? staffReport.reduce((total, staff) => total + (staff.products?.reduce((acc: number, p: any) => acc + (p.orderQuantity || 0), 0) || staff.staffTotalOrder || 0), 0)
+    : (metrics.convertedToOrders || 0);
+
+  const totalReturnOrderQty = staffReport.length > 0
+    ? staffReport.reduce((total, staff) => total + (staff.products?.reduce((acc: number, p: any) => acc + (p.returnQuantity || 0), 0) || staff.staffReturnOrder || 0), 0)
+    : (metrics.totalReturnOrderCount || 0);
+
   return (
     <div className="space-y-6">
       {/* Top Header with Date Filter */}
@@ -80,7 +88,7 @@ export default function DashboardPage() {
         </div>
         {/* Converted to Orders */}
         <div className="bg-white p-4 border border-border-ui rounded-lg text-center shadow-soft flex flex-col justify-center h-24">
-          <h3 className="text-2xl font-bold text-text-primary">{metrics.convertedToOrders || 0}</h3>
+          <h3 className="text-2xl font-bold text-text-primary">{totalConvertedToOrders}</h3>
           <p className="text-xs text-text-secondary font-medium uppercase tracking-wider mt-1">Converted to Orders</p>
         </div>
         {/* Total Sell */}
@@ -100,7 +108,7 @@ export default function DashboardPage() {
         </div>
         {/* Total Return Order (Count) */}
         <div className="bg-white p-4 border border-border-ui rounded-lg text-center shadow-soft flex flex-col justify-center h-24">
-          <h3 className="text-2xl font-bold text-error">{metrics.totalReturnOrderCount || 0}</h3>
+          <h3 className="text-2xl font-bold text-error">{totalReturnOrderQty}</h3>
           <p className="text-xs text-text-secondary font-medium uppercase tracking-wider mt-1">Total Return Order</p>
         </div>
       </div>
@@ -135,18 +143,23 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {staffReport.map((staff, idx) => (
-                    <tr
-                      key={idx}
-                      className="border-b border-border-ui/30 hover:bg-background cursor-pointer transition-colors"
-                      onClick={() => setSelectedStaff(staff)}
-                    >
-                      <td className="px-4 py-3 text-sm font-medium text-text-primary">{staff.staffName}</td>
-                      <td className="px-4 py-3 text-sm text-text-secondary">{staff.staffTotalOrder}</td>
-                      <td className="px-4 py-3 text-sm text-text-secondary">{staff.staffReturnOrder}</td>
-                      <td className="px-4 py-3 text-sm text-text-secondary">{staff.staffOrder}</td>
-                    </tr>
-                  ))}
+                  {staffReport.map((staff, idx) => {
+                    const totalOrder = staff.products?.reduce((acc: number, p: any) => acc + (p.orderQuantity || 0), 0) || staff.staffTotalOrder;
+                    const returnOrder = staff.products?.reduce((acc: number, p: any) => acc + (p.returnQuantity || 0), 0) || staff.staffReturnOrder;
+                    const netOrder = staff.products?.reduce((acc: number, p: any) => acc + (p.totalOrder || 0), 0) || staff.staffOrder;
+                    return (
+                      <tr
+                        key={idx}
+                        className="border-b border-border-ui/30 hover:bg-background cursor-pointer transition-colors"
+                        onClick={() => setSelectedStaff(staff)}
+                      >
+                        <td className="px-4 py-3 text-sm font-medium text-text-primary">{staff.staffName}</td>
+                        <td className="px-4 py-3 text-sm text-text-secondary">{totalOrder}</td>
+                        <td className="px-4 py-3 text-sm text-text-secondary">{returnOrder}</td>
+                        <td className="px-4 py-3 text-sm text-text-secondary">{netOrder}</td>
+                      </tr>
+                    );
+                  })}
                   {staffReport.length === 0 && (
                     <tr>
                       <td colSpan={4} className="px-4 py-8 text-center text-sm text-text-secondary">No data available</td>
