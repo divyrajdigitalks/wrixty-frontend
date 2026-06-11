@@ -14,6 +14,7 @@ import { fetchStatuses } from "../../services/statusService";
 import { fetchReasonToCalls } from "../../services/reasonToCallService";
 import { createLeadApi } from "../../services/leadService";
 import { createOrderApi } from "../../services/orderService";
+import { fetchCouriers } from "../../services/courierService";
 
 interface SelectedProductRow {
   productId: string;
@@ -26,12 +27,7 @@ export default function AddLeadPage() {
   const router = useRouter();
   const [products, setProducts] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
-  const [couriers] = useState<any[]>([
-    { id: "1", name: "Delhivery" },
-    { id: "2", name: "BlueDart" },
-    { id: "3", name: "XpressBees" },
-    { id: "4", name: "DHL Express" }
-  ]);
+  const [couriers, setCouriers] = useState<any[]>([]);
   const [statusesOptions, setStatusesOptions] = useState<any[]>([]);
   const [reasonCallOptions, setReasonCallOptions] = useState<any[]>([]);
   const toast = useToast();
@@ -50,16 +46,18 @@ export default function AddLeadPage() {
 
     const loadMasterData = async () => {
       try {
-        const [usersRes, prodsRes, statusRes, reasonRes] = await Promise.all([
+        const [usersRes, prodsRes, statusRes, reasonRes, couriersRes] = await Promise.all([
           fetchUsers({ page: 1, limit: 100 }),
           fetchProducts({ page: 1, limit: 100 }),
           fetchStatuses({ page: 1, limit: 100 }),
-          fetchReasonToCalls({ page: 1, limit: 100 })
+          fetchReasonToCalls({ page: 1, limit: 100 }),
+          fetchCouriers({ page: 1, limit: 100 })
         ]);
         setUsers(usersRes.data);
         setProducts(prodsRes.data);
         setStatusesOptions(statusRes.data);
         setReasonCallOptions(reasonRes.data);
+        if (couriersRes?.data) setCouriers(couriersRes.data);
         if (loggedInUser && !isUserAdmin) {
           setAssignee(loggedInUser._id || loggedInUser.id || "");
         } else if (usersRes.data.length > 0) {
