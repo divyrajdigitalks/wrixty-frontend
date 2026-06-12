@@ -22,7 +22,6 @@ export default function ReturnOrderTypePage() {
   const toast = useToast();
   const [types, setTypes] = useState<ReturnOrderType[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   // Server-side pagination + search
   const [page, setPage] = useState(1);
@@ -43,12 +42,12 @@ export default function ReturnOrderTypePage() {
   const loadTypes = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
+      
       const res = await fetchReturnOrderTypes({ page, limit, search });
       setTypes(res.data);
       setTotal(res.total);
     } catch {
-      setError("Failed to load return order types. Make sure the backend is running.");
+      toast.error("Failed to load return order types. Make sure the backend is running.");
     } finally {
       setLoading(false);
     }
@@ -167,11 +166,7 @@ export default function ReturnOrderTypePage() {
           )}
         </div>
 
-        {error && (
-          <div className="text-sm text-rose-500 bg-rose-50  border border-rose-200  rounded-lg px-3 py-2">
-            {error}
-          </div>
-        )}
+
 
         <Table
           data={types}

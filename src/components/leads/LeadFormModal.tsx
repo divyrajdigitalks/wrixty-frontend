@@ -303,16 +303,12 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phone || !status || !assignee) {
-      toast.warning("Please fill all compulsory fields (Phone, Status, Assign Staff)!");
+    if (!phone) {
+      toast.warning("Please enter Phone Number!");
       return;
     }
     if (phone.length !== 10) {
       toast.warning("Phone number must be exactly 10 digits!");
-      return;
-    }
-    if (modalSelectedProducts.length === 0) {
-      toast.warning("Please add at least one product!");
       return;
     }
 
@@ -424,6 +420,19 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
                   setPhone(val);
                 }
               }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  const form = e.currentTarget.form;
+                  if (form) {
+                    const elements = Array.from(form.elements) as HTMLElement[];
+                    const index = elements.indexOf(e.currentTarget);
+                    if (index > -1 && index + 1 < elements.length) {
+                      elements[index + 1].focus();
+                    }
+                  }
+                }
+              }}
               required
               placeholder="Enter 10-digit Phone Number"
             />
@@ -444,7 +453,6 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
             label="Status"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            required
             options={[
               { value: "", label: "Select Status" },
               ...statusesOptions.map(s => ({ value: s._id || s.id, label: s.name }))
@@ -454,7 +462,6 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
             label="Assign Staff"
             value={assignee}
             onChange={(e) => setAssignee(e.target.value)}
-            required
             disabled={!isAdmin}
             options={[
               { value: "", label: "Select User" },

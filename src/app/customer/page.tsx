@@ -32,10 +32,12 @@ export default function CustomerPage() {
   const [phone, setPhone] = useState("");
   const [formErrors, setFormErrors] = useState<{ name?: string, phone?: string }>({});
 
-  const loadCustomers = useCallback(async (searchQuery: string = "", page: number = currentPage, limit: number = rowsPerPage) => {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const loadCustomers = useCallback(async () => {
     try {
       setLoading(true);
-      const res: any = await fetchCustomers(searchQuery, page, limit);
+      const res: any = await fetchCustomers(searchQuery, currentPage, rowsPerPage);
       if (res && Array.isArray(res.data)) {
         setCustomers(res.data);
         if (res.total !== undefined) setTotalRecords(res.total);
@@ -48,7 +50,7 @@ export default function CustomerPage() {
     } finally {
       setLoading(false);
     }
-  }, [toast, currentPage, rowsPerPage]);
+  }, [toast, searchQuery, currentPage, rowsPerPage]);
 
   useEffect(() => {
     loadCustomers();
@@ -188,8 +190,8 @@ export default function CustomerPage() {
             setRowsPerPage(limit);
           }}
           onSearchChange={(val) => {
+            setSearchQuery(val);
             setCurrentPage(1);
-            loadCustomers(val, 1, rowsPerPage);
           }}
         />
       </div>

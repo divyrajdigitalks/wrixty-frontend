@@ -25,7 +25,7 @@ export default function TeamListPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  
 
   // Server-side pagination + search
   const [page, setPage] = useState(1);
@@ -49,12 +49,12 @@ export default function TeamListPage() {
   const loadTeams = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
+      
       const res = await fetchTeams({ page, limit, search });
       setTeams(res.data);
       setTotal(res.total);
     } catch {
-      setError("Failed to load teams. Make sure the backend is running.");
+      toast.error("Failed to load teams. Make sure the backend is running.");
     } finally {
       setLoading(false);
     }
@@ -237,11 +237,7 @@ export default function TeamListPage() {
           )}
         </div>
 
-      {error && (
-        <div className="text-sm text-rose-500 bg-rose-50 border border-rose-200 rounded px-3 py-2">
-          {error}
-        </div>
-      )}
+      
 
       <div className="bg-card-bg p-8 border border-border-ui rounded-lg shadow-soft">
         <Table 

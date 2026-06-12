@@ -136,10 +136,6 @@ export default function AddLeadPage() {
       toast.warning("Phone number must be exactly 10 digits!");
       return;
     }
-    if (modalSelectedProducts.length === 0) {
-      toast.warning("Please add at least one product!");
-      return;
-    }
 
     setIsAddingLead(true);
 
@@ -230,13 +226,26 @@ export default function AddLeadPage() {
         <form onSubmit={handleAddSubmit} className="space-y-6 text-left">
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Input label="Name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Enter Name" />
+            <Input label="Name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter Name" />
             <Input
               label="Phone Number"
               type="text"
               isMobile
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  const form = e.currentTarget.form;
+                  if (form) {
+                    const elements = Array.from(form.elements) as HTMLElement[];
+                    const index = elements.indexOf(e.currentTarget);
+                    if (index > -1 && index + 1 < elements.length) {
+                      elements[index + 1].focus();
+                    }
+                  }
+                }
+              }}
               placeholder="10-digit number"
               required
             />

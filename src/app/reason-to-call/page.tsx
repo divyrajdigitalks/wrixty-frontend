@@ -24,7 +24,6 @@ export default function ReasonToCallPage() {
   const [reasons, setReasons] = useState<ReasonToCall[]>([]);
   const [loading, setLoading] = useState(true);
   const toast = useToast();
-  const [error, setError] = useState<string | null>(null);
   const [exportLoading, setExportLoading] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
 
@@ -48,12 +47,12 @@ export default function ReasonToCallPage() {
   const loadReasons = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
+      
       const res = await fetchReasonToCalls({ page, limit, search });
       setReasons(res.data);
       setTotal(res.total);
     } catch {
-      setError("Failed to load reasons to call. Make sure the backend is running.");
+      toast.error("Failed to load reasons to call. Make sure the backend is running.");
     } finally {
       setLoading(false);
     }
@@ -204,11 +203,7 @@ export default function ReasonToCallPage() {
           </div>
         </div>
 
-        {error && (
-          <div className="text-sm text-rose-500 bg-rose-50 border border-rose-200 rounded px-3 py-2">
-            {error}
-          </div>
-        )}
+        
 
         <Table
           data={reasons}
